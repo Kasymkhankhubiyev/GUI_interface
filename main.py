@@ -380,7 +380,6 @@ finally:
         print('Connection with SQL is closed')
 
 
-print("hello kasym!")
 # def new_window():
 #     tk.Label(win1, image=rnb_image).grid(row=0, column=0, stick='w')
 #     win1.update()
