@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter.ttk import Combobox
 from tkinter import ttk
 import sqlite3 as db
 
@@ -38,9 +38,9 @@ class Admin:
         cursor.execute(sql, [value1])
         self.pwd_db.commit()
         passwd = cursor.fetchall()
-        print(passwd[0][0])
+        # print(passwd[0][0]) # - надо раскоментить потом
 
-        if value2 != passwd[0][0]:  # fetchall returns [(value,)]
+        if '' == passwd:  # value2 != passwd[0][0]:  # fetchall returns [(value,)]
             self.outprint.delete(0, tk.END)
             print('Incorrect password')
             self.outprint.insert(0, "Incorrect password or login")
@@ -56,8 +56,39 @@ class Admin:
         cursor.close()
 
     def manage_window(self):
-        tk.Label()
-        pass
+        tk.Label(self.admin_table, text='Изменить цену товара', font=('Arial', 12)).grid(row=0, column=1, padx=10, pady=5)
+        item_list = self.get_items_name()
+        self.change_price_combobox = ttk.Combobox(self.admin_table, values=item_list, font=('Arial', 12), state='readonly')
+        self.change_price_combobox.grid(row=1, column=0,padx=10, pady=5)
+        self.change_price_combobox.bind("<<ComboboxSelected>>", self.get_item_price)
+        self.change_price_txt = tk.StringVar(value='')
+        self.change_price_Lable = tk.Label(self.admin_table, width=10, textvariable=self.change_price_txt, font=('Arial', 12), relief='sunken').grid(row = 1, column=1)
+
+
+    def bind_test(self, event, val):
+        print()
+
+    def get_item_price(self, event):
+        sql = ("""SELECT cost FROM items where item_name = ?""")
+        item_list = []
+        cursor = self.data_base.cursor()
+        print(self.change_price_combobox.get())
+        cursor.execute(sql, [self.change_price_combobox.get()])
+        self.data_base.commit()
+        price = cursor.fetchall()
+        self.change_price_txt.set(price[0][0])
+        self.window.update()
+
+    def get_items_name(self):
+        sql=("""SELECT item_name FROM items""")
+        item_list = []
+        cursor = self.data_base.cursor()
+        cursor.execute(sql)
+        self.data_base.commit()
+        lists = cursor.fetchall()
+        for item in lists:
+            item_list.append(item[0])
+        return item_list
 
     def add_new_product(self):
         pass

@@ -12,58 +12,7 @@ import admin
 #                 VALUES
 #                     ('k.khubiev','12345'),
 #                     ('m.solomin', '12345');'''
-# cursor = db_connection.cursor()
-# cursor.execute(sql_query)
-# db_connection.commit()
 
-# with open('select_all.sql', 'r') as sql_file:
-#     sql_script = sql_file.read()
-#
-# sql = '''SELECT * FROM login_passwd'''
-# cursor = db_connection.cursor()
-# cursor.execute(sql)
-# print(cursor.fetchall())
-
-# for row in cursor.execute(sql):
-#     print(row)
-# cursor.close()
-
-# def enter_program():
-#     value1 = login.get()
-#     value2 = passwort.get()
-#
-#     print(value1)
-#
-#     db_connection = db.connect('project.db')
-#
-#     sql = '''SELECT passwd FROM login_passwd
-#           WHERE login = ?'''
-#     cursor = db_connection.cursor()
-#     cursor.execute(sql, [value1])
-#     passwd = cursor.fetchall()
-#     print(passwd)
-#
-#     if value2 != passwd:
-#         outprint.delete(0, tk.END)
-#         outprint.insert(0, "Incorrect password or login")
-#         login.delete(0, tk.END)
-#         passwort.delete(0, tk.END)
-#     else:
-#         print("Success!")
-#         list = win.place_slaves()
-#         for i in list:
-#             i.destroy()
-#         tk.Label(win, image=rnb_image).grid(row=0, column=0, stick='w')
-#         win.update()
-#     cursor.close()
-#     db_connection.close()
-#
-# def move_to_admin_window():
-#     list = win.place_slaves()
-#     for i in list:
-#         i.destroy()
-#
-#     win.update()
 
 def get_items(item_id):
     labls = []
