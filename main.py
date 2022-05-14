@@ -137,8 +137,18 @@ def add_to_basket(button):
 # возможно нужно добавить, что если value = 0 нужно удалить из списка
 
 
-def sum_calories():
-    return 0
+def sum_calories(calories):
+    calories_amount = 0
+    for item in calories:
+        calories_amount += item[0]
+    return calories_amount
+
+def order_coast(items):
+    cost = 0
+    for item in items:
+        cost += item[2]
+        print(item)
+    return cost
 
 
 def basket_with_calories():
@@ -172,7 +182,6 @@ def basket_with_calories():
     caltree.heading(1, text='Наименование')
     caltree.heading(2, text='калории - белки - жиры - углеводы')
     tree.column(2, minwidth=10, width=100, stretch=False)
-    print('column 2 is done')
     scrollbar = tk.Scrollbar(basket_table, orient=tk.VERTICAL, command=tree.yview)
     caltree.configure(yscroll=scrollbar.set)
 
@@ -181,7 +190,12 @@ def basket_with_calories():
         caltree.insert("", tk.END, values=arr)
     caltree.grid(row=2, column=0, sticky=tk.W+tk.E)
     scrollbar.grid(row=2, column=1, sticky=tk.N + tk.S)
-    tk.Button(basket_table, text='ИТОГО', font=('Arial', 12)).grid(row=3, column=0, padx=10, pady=5)
+
+    sum_cal = sum_calories(calories_list)
+    final_cost = order_coast(basket_list)
+
+    tk.Label(basket_table, text=('Всего каллорий:   ' + str(sum_cal)), font=('Aria', 12)).grid(row=3, column=0, padx=10, pady=5)
+    tk.Label(basket_table, text=('Стоимость заказа: ' + str(final_cost)), font=('Aria', 12)).grid(row=4, column=0, padx=10, pady=5)
     win.update()
 
 
