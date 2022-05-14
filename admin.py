@@ -63,7 +63,9 @@ class Admin:
         self.change_price_combobox.bind("<<ComboboxSelected>>", self.get_item_price)
         self.change_price_txt = tk.StringVar(value='')
         self.change_price_Lable = tk.Label(self.admin_table, width=10, textvariable=self.change_price_txt, font=('Arial', 12), relief='sunken').grid(row = 1, column=1)
-
+        self.change_price_entry = tk.Entry(self.admin_table, font=('Arial', 12), width=10)
+        self.change_price_entry.grid(row=1, column=2, padx=10, pady=5)
+        tk.Button(self.admin_table, text='сохранить', font=('Arial', 12)).grid(row=1, column=3, padx=10, pady=5)
 
     def bind_test(self, event, val):
         print()
