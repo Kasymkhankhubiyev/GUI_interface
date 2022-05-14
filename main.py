@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 import sqlite3 as db
+import button
 
 
 # sql_query = '''INSERT INTO login_passwd(login, passwd)
@@ -143,13 +144,13 @@ class Item_label(tk.Label):
         return self.item_name
 
 
-class Mybutton(tk.Button):
-    def __init__(self, master, drink_id, *args, **kwargs):
-        super(Mybutton, self).__init__(master, *args, **kwargs)
-        self.drink_id = drink_id
-
-    def get_button_id(self):
-        return self.drink_id
+# class Mybutton(tk.Button):
+#     def __init__(self, master, drink_id, *args, **kwargs):
+#         super(Mybutton, self).__init__(master, *args, **kwargs)
+#         self.drink_id = drink_id
+#
+#     def get_button_id(self):
+#         return self.drink_id
 
 def sum_calories():
     return 0
@@ -272,7 +273,7 @@ def prod_win_construct(table, prod_list, items_list, spinboxs_list, buttons_list
         spin = tk.Spinbox(table, from_=0, to=100, width=5, font=('Arial', 12))
         spin.grid(row=row, column=2, padx=10, pady=5)
         spinboxs_list.append(spin)
-        btn = Mybutton(table, drink_id=row+row_counter, text='🛒', fg='GREEN', font=('Aril', 11))
+        btn = button.Mybutton(table, drink_id=row+row_counter, text='🛒', fg='GREEN', font=('Aril', 11))
         btn.config(command=lambda button=btn: add_to_basket(button))
         buttons_list.append(btn)
         btn.grid(row=row, column=3, padx=10, pady=5)
