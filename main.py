@@ -2,7 +2,9 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 import sqlite3 as db
+
 import button
+import mylabel
 
 
 # sql_query = '''INSERT INTO login_passwd(login, passwd)
@@ -132,25 +134,8 @@ def add_to_basket(button):
             basket_list.append(items)
     fill_basket()
     win.update()
-#возможно нужно добавить, что если value = 0 нужно удалить из списка
+# возможно нужно добавить, что если value = 0 нужно удалить из списка
 
-
-class Item_label(tk.Label):
-    def __init__(self, master, item_name, *args, **kwargs):
-        super(Item_label, self).__init__(master, *args, **kwargs)
-        self.item_name = item_name
-
-    def get_item_name(self):
-        return self.item_name
-
-
-# class Mybutton(tk.Button):
-#     def __init__(self, master, drink_id, *args, **kwargs):
-#         super(Mybutton, self).__init__(master, *args, **kwargs)
-#         self.drink_id = drink_id
-#
-#     def get_button_id(self):
-#         return self.drink_id
 
 def sum_calories():
     return 0
@@ -178,7 +163,6 @@ def basket_with_calories():
     tree.grid(row=0, column=0, sticky=tk.W+tk.E)
     ysb.grid(row=0, column=1, sticky=tk.N + tk.S)
 
-
     tk.Button(basket_table, text='Рассчитать КБЖУ и Стоимость', command=calculate_calories, font=('Arial', 12)).grid(
         row=1, column=0, padx=10, pady=5)
 
@@ -199,6 +183,7 @@ def basket_with_calories():
     scrollbar.grid(row=2, column=1, sticky=tk.N + tk.S)
     tk.Button(basket_table, text='ИТОГО', font=('Arial', 12)).grid(row=3, column=0, padx=10, pady=5)
     win.update()
+
 
 def fill_basket():  # basket_list, basket_table):
     lists = basket_table.grid_slaves()
@@ -266,7 +251,7 @@ def calculate_calories():
 
 def prod_win_construct(table, prod_list, items_list, spinboxs_list, buttons_list, row_counter):
     for row in range(len(prod_list)):
-        lbl = Item_label(table, text=prod_list[row], item_name=prod_list[row], font=('Arial', 12))
+        lbl = mylabel.ItemLabel(table, text=prod_list[row], item_name=prod_list[row], font=('Arial', 12))
         lbl.grid(row=row, column=0, padx=10, pady=5, sticky='w')
         items_list.append(lbl)
         tk.Label(table, text='кол-во', font=('Arial', 12)).grid(row=row, column=1, padx=10, pady=5)
