@@ -5,6 +5,7 @@ import sqlite3 as db
 
 import button
 import mylabel
+import admin
 
 
 # sql_query = '''INSERT INTO login_passwd(login, passwd)
@@ -61,19 +62,6 @@ import mylabel
 #     list = win.place_slaves()
 #     for i in list:
 #         i.destroy()
-#
-#     tk.Label(win, text='login', font=('Arial', 14)).place(x=200, y=150)
-#     tk.Label(win, text='password', font=('Arial', 14)).place(x=200, y=190)
-#
-#     login = tk.Entry(win, font=('Arial', 14))
-#     # login.grid(row=0, column=1, padx=100)
-#     login.place(x=300, y=150)
-#     passwort = tk.Entry(win, show='*', font=('Arial', 14))
-#     # passwort.grid(row=1, column=1)
-#     passwort.place(x=300, y=190)
-#     outprint = tk.Entry(win, font=('Arial', 12))
-#     outprint.place(x=250, y=300, width=300)
-#     tk.Button(win, text='Enter', command=enter_program, font=('Arial', 14)).place(x=350, y=250)
 #
 #     win.update()
 
@@ -332,8 +320,9 @@ try:
         tk.Label(basket_table, text=basket_list[row][0], font=('Arial', 12)).grid(row=row, column=0, padx=10, pady=5)
         tk.Label(basket_table, text=basket_list[row][1], font=('Arial', 12)).grid(row=row, column=1, padx=10, pady=5)
 
+    admin_table = admin.Admin(win, tab_control, db_connection)
+
     tab_control.pack(expand=1, fill='both')
-    # tk.Button(win, text='admin', command=move_to_admin_window).place(x=200, y=300)
 
     win.mainloop()
 
