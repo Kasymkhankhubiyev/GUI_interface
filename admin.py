@@ -21,7 +21,10 @@ class Admin:
         self.passwort.place(x=300, y=190)
         self.outprint = tk.Entry(self.admin_table, font=('Arial', 12))
         self.outprint.place(x=250, y=300, width=300)
-        tk.Button(self.admin_table, command=self.enter_program, text='Enter', font=('Arial', 14)).place(x=350, y=250)  #
+        tk.Button(self.admin_table, command=self.enter_program, text='Enter', font=('Arial', 14)).place(x=350, y=250)
+
+        self.button_list=[]
+        self.label_list=[]
 
     def enter_program(self):
         value1 = self.login.get()
@@ -35,9 +38,9 @@ class Admin:
         cursor.execute(sql, [value1])
         self.pwd_db.commit()
         passwd = cursor.fetchall()
-        print(passwd)
+        print(passwd[0][0])
 
-        if value2 != passwd:
+        if value2 != passwd[0][0]:  # fetchall returns [(value,)]
             self.outprint.delete(0, tk.END)
             print('Incorrect password')
             self.outprint.insert(0, "Incorrect password or login")
@@ -45,9 +48,28 @@ class Admin:
             self.passwort.delete(0, tk.END)
         else:
             print("Success!")
-            list = self.window.place_slaves()
+            list = self.admin_table.place_slaves()
             for i in list:
                 i.destroy()
-
+            self.manage_window()
         self.window.update()
         cursor.close()
+
+    def manage_window(self):
+        tk.Label()
+        pass
+
+    def add_new_product(self):
+        pass
+
+    def add_recepe(self):
+        pass
+
+    def delete_product(self):
+        pass
+
+    def update_recipe(self):
+        pass
+
+    def update_product_cost(self):
+        pass
