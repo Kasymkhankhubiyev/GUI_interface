@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter.ttk import Combobox
 from tkinter import ttk
 import sqlite3 as db
+from tkinter import messagebox
 
 
 class Admin:
@@ -56,19 +57,36 @@ class Admin:
         cursor.close()
 
     def manage_window(self):
-        tk.Label(self.admin_table, text='Изменить цену товара', font=('Arial', 12)).grid(row=0, column=1, padx=10, pady=5)
+        self.change_price_module()
+        self.add_item_module()
+
+    def change_price_module(self):
+        tk.Label(self.admin_table, text='Изменить цену товара', font=('Arial', 12)).grid(row=0, column=1, pady=5)
         item_list = self.get_items_name()
         self.change_price_combobox = ttk.Combobox(self.admin_table, values=item_list, font=('Arial', 12), state='readonly')
-        self.change_price_combobox.grid(row=1, column=0,padx=10, pady=5)
+        self.change_price_combobox.grid(row=1, column=0, pady=5)
         self.change_price_combobox.bind("<<ComboboxSelected>>", self.get_item_price)
         self.change_price_txt = tk.StringVar(value='')
-        self.change_price_Lable = tk.Label(self.admin_table, width=10, textvariable=self.change_price_txt, font=('Arial', 12), relief='sunken').grid(row = 1, column=1)
+        self.change_price_Lable = tk.Label(self.admin_table, width=10, textvariable=self.change_price_txt, font=('Arial', 12), relief='sunken').grid(row=1, column=1, pady=5)
         self.change_price_entry = tk.Entry(self.admin_table, font=('Arial', 12), width=10)
-        self.change_price_entry.grid(row=1, column=2, padx=10, pady=5)
-        tk.Button(self.admin_table, command=self.update_product_cost, text='сохранить', font=('Arial', 12)).grid(row=1, column=3, padx=10, pady=5)
+        self.change_price_entry.grid(row=1, column=2, pady=5)
+        tk.Button(self.admin_table, command=self.update_product_cost, text='сохранить', font=('Arial', 12)).grid(row=1, column=3, pady=5)
 
-    def bind_test(self, event, val):
-        print()
+    def add_item_module(self):
+        tk.Label(self.admin_table, text='Добавить товар', font=('Arial', 12)).grid(row=2, column=1, pady=10)
+        tk.Label(self.admin_table, text='Наименование', font=('Arial', 12)).grid(row=3, column=0, pady=5)
+        self.add_item_name = tk.Entry(self.admin_table, font=('Arial', 12), width=25)
+        self.add_item_name.grid(row=4, column=0, pady=5, padx=5, sticky='w')
+        tk.Label(self.admin_table, text='Объем\масса', font=('Arial', 12)).grid(row=3, column=1, padx=10, pady=5)
+        self.add_item_amount = tk.Entry(self.admin_table, width=10, font=('Arial',12))
+        self.add_item_amount.grid(row=4, column=1, pady=5)
+        tk.Label(self.admin_table, text='Тип товара', font=('Arial', 12)).grid(row=3, column=2, pady=5)
+        self.add_item_type = ttk.Combobox(self.admin_table, values=['кофе', 'чай', 'авторский', 'коктейл', 'выпечка'], font=('Arial', 12), width=10, state='readonly')
+        self.add_item_type.grid(row=4, column=2, pady=5)
+        tk.Label(self.admin_table, text='Цена', font=('Arial', 12)).grid(row=3, column=3, pady=5)
+        self.add_item_cost = tk.Entry(self.admin_table, width=10, font=('Arial', 12))
+        self.add_item_cost.grid(row=4, column=3, pady=5, padx=10)
+        tk.Button(self.admin_table, command=self.add_new_product, text='сохранить', font=('Arial', 12)).grid(row=4, column=4, pady=5, padx=10)
 
     def get_item_price(self, event="<Button>"):
         sql = ("""SELECT cost FROM items where item_name = ?""")
@@ -93,7 +111,41 @@ class Admin:
         return item_list
 
     def add_new_product(self):
-        pass
+        if self.add_item_name.get() != '':  # cheking whether name in empty or not
+            if check_str(self.add_item_name.get()):
+                if self.add_item_amount.get() != '':
+                    if self.add_item_amount.get().isdigit():
+                        if self.add_item_type.get() != '':
+                            if self.add_item_cost.get() != '':
+                                if self.add_item_cost.get().isdigit():
+                                    sql = ("""INSERT INTO items(item_name, type_id, cost)
+                                                Values (?, ?, ?)""")
+                                    name = self.add_item_name.get() + ' ' + self.add_item_amount.get()
+                                    cursor = self.data_base.cursor()
+                                    cursor.execute(sql, [name, item_type_case(self.add_item_type.get()), int(self.add_item_cost.get())])
+                                    self.data_base.commit()
+                                    cursor.close()
+                                    self.window.update()
+                                else:
+                                    messagebox.showerror(title='Упс... Ошибка',
+                                                     message='Цена должна быть целым числом, например 270.')
+                            else:
+                                messagebox.showerror(title='Упс... Ошибка',
+                                                     message='Введите цену товара, хотя бы примерную, позже можно будет изменить. Например: 180')
+                        else:
+                            messagebox.showerror(title='Упс... Ошибка', message='Выберите тип продукта!')
+                    else:
+                        messagebox.showerror(title='Упс... Ошибка',
+                                             message='масса или объем должны быть целочисленными, Например: 250')
+                else:
+                    messagebox.showerror(title='Упс... Ошибка',
+                                         message='Пустое поле кол-ва: масса в гр, объем в мл., например: 250')
+            else:
+                messagebox.showerror(title='Упс... Ошибка', message='Название не может быть числом или математическим выражением! Пример: Капучино.')
+        else:
+            print('Item name is empty')
+            messagebox.showerror(title='Упс... Ошибка', message='Пустое поле названия товара!')
+
 
     def add_recepe(self):
         pass
@@ -106,10 +158,39 @@ class Admin:
 
     def update_product_cost(self):
         item = self.change_price_combobox.get()
-        sql = ("""UPDATE items SET cost = ? WHERE item_name = ?""")
-        cursor = self.data_base.cursor()
-        cursor.execute(sql, [self.change_price_entry.get(), self.change_price_combobox.get()])
-        self.data_base.commit()
-        cursor.close()
-        self.get_item_price()
-        self.window.update()
+        if item != '':
+            sql = ("""UPDATE items SET cost = ? WHERE item_name = ?""")
+            cursor = self.data_base.cursor()
+            cursor.execute(sql, [self.change_price_entry.get(), self.change_price_combobox.get()])
+            self.data_base.commit()
+            cursor.close()
+            self.get_item_price()
+            self.window.update()
+        else: pass
+
+
+def check_str(str):
+    if str.replace('.', '', 1).isdigit():
+        return False
+    elif str.replace(',', '', 1).isdigit():
+        return False
+    elif str.replace('/', '', 1).isdigit():
+        return False
+    elif str.replace('^', '', 1).isdigit():
+        return False
+    elif str.replace('*', '', 1).isdigit():
+        return False
+    elif str.replace(':', '', 1).isdigit():
+        return False
+    else:
+        return True
+
+def item_type_case(str):
+    if str == 'кофе':
+        return 1
+    elif str == 'авторский':
+        return 2
+    elif str == 'коктейл':
+        return 3
+    elif str == 'чай':
+        return 4
