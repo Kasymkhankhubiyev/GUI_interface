@@ -263,6 +263,20 @@ def calculate_calories():
     else:
         pass
 
+def prod_win_construct(table, prod_list, items_list, spinboxs_list, buttons_list, row_counter):
+    for row in range(len(prod_list)):
+        lbl = Item_label(table, text=prod_list[row], item_name=prod_list[row], font=('Arial', 12))
+        lbl.grid(row=row, column=0, padx=10, pady=5, sticky='w')
+        items_list.append(lbl)
+        tk.Label(table, text='кол-во', font=('Arial', 12)).grid(row=row, column=1, padx=10, pady=5)
+        spin = tk.Spinbox(table, from_=0, to=100, width=5, font=('Arial', 12))
+        spin.grid(row=row, column=2, padx=10, pady=5)
+        spinboxs_list.append(spin)
+        btn = Mybutton(table, drink_id=row+row_counter, text='🛒', fg='GREEN', font=('Aril', 11))
+        btn.config(command=lambda button=btn: add_to_basket(button))
+        buttons_list.append(btn)
+        btn.grid(row=row, column=3, padx=10, pady=5)
+
 
 try:
     db_connection = db.connect('coffee.db')
@@ -294,74 +308,25 @@ try:
 
     product_list = get_items(1)
 
-    for row in range(len(product_list)):
-            # item_list = get_items(1)
-        lbl = Item_label(coffee_table, text=product_list[row], item_name=product_list[row], font=('Arial', 12))
-        lbl.grid(row=row, column=0, padx=10, pady=5, sticky='w')
-        item_list.append(lbl)
-        tk.Label(coffee_table, text='кол-во', font=('Arial', 12)).grid(row=row, column=1, padx=10, pady=5)
-        spin = tk.Spinbox(coffee_table, from_=0, to=100, width=5, font=('Arial', 12))
-        spin.grid(row=row, column=2, padx=10, pady=5)
-        spinbox_list.append(spin)
-        btn = Mybutton(coffee_table, drink_id=row, text='🛒', fg='GREEN', font=('Aril', 11))
-        btn.config(command=lambda button=btn: add_to_basket(button))
-        button_list.append(btn)
-        btn.grid(row=row, column=3, padx=10, pady=5)
+    prod_win_construct(coffee_table, product_list, item_list, spinbox_list, button_list, row_counter)
 
     row_counter = len(product_list)
     product_list.clear()
     product_list = get_items(2)
 
-    for row in range(len(product_list)):
-            # item_list = get_items(1)
-        lbl = Item_label(raf_table, text=product_list[row], item_name=product_list[row], font=('Arial', 12))
-        lbl.grid(row=row, column=0, padx=10, pady=5, sticky='w')
-        item_list.append(lbl)
-        tk.Label(raf_table, text='кол-во', font=('Arial', 12)).grid(row=row, column=1, padx=10, pady=5)
-        spin = tk.Spinbox(raf_table, from_=0, to=100, width=5, font=('Arial', 12))
-        spin.grid(row=row, column=2, padx=10, pady=5)
-        spinbox_list.append(spin)
-        btn = Mybutton(raf_table, drink_id=row + row_counter, text='🛒', fg='GREEN', font=('Aril', 11))
-        btn.config(command=lambda button=btn: add_to_basket(button))
-        button_list.append(btn)
-        btn.grid(row=row, column=3, padx=10, pady=5)
+    prod_win_construct(raf_table, product_list, item_list, spinbox_list, button_list, row_counter)
 
     row_counter += len(product_list)
     product_list.clear()
     product_list = get_items(3)
 
-    for row in range(len(product_list)):
-        # item_list = get_items(1)
-        lbl = Item_label(milk_shake_table, text=product_list[row], item_name=product_list[row], font=('Arial', 12))
-        lbl.grid(row=row, column=0, padx=10, pady=5, sticky='w')
-        item_list.append(lbl)
-        tk.Label(milk_shake_table, text='кол-во', font=('Arial', 12)).grid(row=row, column=1, padx=10, pady=5)
-        spin = tk.Spinbox(milk_shake_table, from_=0, to=100, width=5, font=('Arial', 12))
-        spin.grid(row=row, column=2, padx=10, pady=5)
-        spinbox_list.append(spin)
-        btn = Mybutton(milk_shake_table, drink_id=row + row_counter, text='🛒', fg='GREEN', font=('Aril', 11))
-        btn.config(command=lambda button=btn: add_to_basket(button))
-        button_list.append(btn)
-        btn.grid(row=row, column=3, padx=10, pady=5)
+    prod_win_construct(milk_shake_table, product_list, item_list, spinbox_list, button_list, row_counter)
 
     row_counter += len(product_list)
     product_list.clear()
     product_list = get_items(4)
 
-    for row in range(len(product_list)):
-        # item_list = get_items(1)
-        lbl = Item_label(tea_table, text=product_list[row], item_name=product_list[row], font=('Arial', 12))
-        lbl.grid(row=row, column=0, padx=10, pady=5, sticky='w')
-        item_list.append(lbl)
-        tk.Label(tea_table, text='кол-во', font=('Arial', 12)).grid(row=row, column=1, padx=10, pady=5)
-        spin = tk.Spinbox(tea_table, from_=0, to=100, width=5, font=('Arial', 12))
-        spin.grid(row=row, column=2, padx=10, pady=5)
-        spinbox_list.append(spin)
-        btn = Mybutton(tea_table, drink_id=row + row_counter, text='🛒', fg='GREEN', font=('Aril', 11))
-        btn.config(command=lambda button=btn: add_to_basket(button))
-        button_list.append(btn)
-        btn.grid(row=row, column=3, padx=10, pady=5)
-
+    prod_win_construct(tea_table, product_list, item_list, spinbox_list, button_list, row_counter)
 
     for row in range(len(basket_list)):
         tk.Label(basket_table, text=basket_list[row][0], font=('Arial', 12)).grid(row=row, column=0, padx=10, pady=5)
@@ -378,20 +343,3 @@ finally:
     if db_connection:
         db_connection.close()
         print('Connection with SQL is closed')
-
-
-# def new_window():
-#     tk.Label(win1, image=rnb_image).grid(row=0, column=0, stick='w')
-#     win1.update()
-#
-#
-# win1 = create_window()
-# rnb_image = tk.PhotoImage(file='rnb.png')
-# rnb_image = rnb_image.subsample(5, 5)
-#
-# tk.Button(win1, text='new window', command=new_window).grid(row=0, column=0, stick='w')
-# win1.update()
-#
-# win1.mainloop()
-
-
