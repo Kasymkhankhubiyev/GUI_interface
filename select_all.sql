@@ -1,3 +1,13 @@
+DROP TABLE IF EXISTS recipe;
+CREATE TABLE recipe(
+id INTEGER PRIMARY KEY,
+food_name TEXT,
+mass_gr REAL,
+product_id INTEGER,
+FOREIGN KEY (product_id) REFERENCES items (id) ON UPDATE CASCADE ON DELETE CASCADE,
+FOREIGN KEY (food_name) REFERENCES foods_cpfc (food_name) ON UPDATE CASCADE ON DELETE RESTRICT
+)
+
 INSERT INTO recipe(food_name, mass_gr, product_id)
 VALUES
 	('Кофе', 20.0, 1),
