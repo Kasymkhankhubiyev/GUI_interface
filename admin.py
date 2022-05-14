@@ -65,19 +65,19 @@ class Admin:
         self.change_price_Lable = tk.Label(self.admin_table, width=10, textvariable=self.change_price_txt, font=('Arial', 12), relief='sunken').grid(row = 1, column=1)
         self.change_price_entry = tk.Entry(self.admin_table, font=('Arial', 12), width=10)
         self.change_price_entry.grid(row=1, column=2, padx=10, pady=5)
-        tk.Button(self.admin_table, text='сохранить', font=('Arial', 12)).grid(row=1, column=3, padx=10, pady=5)
+        tk.Button(self.admin_table, command=self.update_product_cost, text='сохранить', font=('Arial', 12)).grid(row=1, column=3, padx=10, pady=5)
 
     def bind_test(self, event, val):
         print()
 
-    def get_item_price(self, event):
+    def get_item_price(self, event="<Button>"):
         sql = ("""SELECT cost FROM items where item_name = ?""")
         item_list = []
         cursor = self.data_base.cursor()
-        print(self.change_price_combobox.get())
         cursor.execute(sql, [self.change_price_combobox.get()])
         self.data_base.commit()
         price = cursor.fetchall()
+        cursor.close()
         self.change_price_txt.set(price[0][0])
         self.window.update()
 
@@ -105,4 +105,11 @@ class Admin:
         pass
 
     def update_product_cost(self):
-        pass
+        item = self.change_price_combobox.get()
+        sql = ("""UPDATE items SET cost = ? WHERE item_name = ?""")
+        cursor = self.data_base.cursor()
+        cursor.execute(sql, [self.change_price_entry.get(), self.change_price_combobox.get()])
+        self.data_base.commit()
+        cursor.close()
+        self.get_item_price()
+        self.window.update()
