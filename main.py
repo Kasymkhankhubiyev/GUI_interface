@@ -82,7 +82,7 @@ def get_items(item_id):
     lists = cursor.fetchall()
     for item in lists:
         labls.append(item[0])
-        print(item)
+        # print(item)
     return labls
 
 
@@ -306,11 +306,11 @@ try:
     tab_control.add(milk_shake_table, text='Милк Шейки')
     tab_control.add(basket_table, text='КОРЗИНА')
 
-    product_list = get_items(1)
+    product_list = get_items(1)  # gets items for the coffee table
 
-    prod_win_construct(coffee_table, product_list, item_list, spinbox_list, button_list, row_counter)
+    prod_win_construct(coffee_table, product_list, item_list, spinbox_list, button_list, row_counter)  # fills in
 
-    row_counter = len(product_list)
+    row_counter = len(product_list)  # increase the item counter for a button list
     product_list.clear()
     product_list = get_items(2)
 
