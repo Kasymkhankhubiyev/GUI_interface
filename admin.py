@@ -147,6 +147,7 @@ class Admin:
         tk.Button(self.admin_table, text='Добавить строку', font=('Arial', 12), command=self.create_recipe_line).grid(row=self.row_counter+1, column=2, pady=5, padx=5)
         tk.Label(self.admin_table, text='Продукт', font=('Arial', 12)).grid(row=self.row_counter+2, column=0, padx=10, pady=5)
         tk.Label(self.admin_table, text='Объем/масса', font=('Arial', 12)).grid(row=self.row_counter+2, column=1, padx=5, pady=5)
+        tk.Button(self.admin_table, text='Сохранить', font=('Arial', 12), command=self.add_recipe).grid(row=self.row_counter+2, column=2, padx=5, pady=5)
         self.row_counter += 3
         self.create_recipe_line()
         pass
@@ -194,8 +195,6 @@ class Admin:
         self.update_recipe_command.grid(row=self.row_counter+2, column=3, pady=5, padx=5)
         tk.Button(self.admin_table, text='Выполнить', font=('Arial', 12), command=self.update_recipe_execute).grid(row=self.row_counter+2, column=4, padx=5, pady=5)
         self.row_counter += 3
-
-    pass
 
     def get_recipe_list(self, event):
         if self.update_recipe_item.get() != '':
@@ -318,9 +317,65 @@ class Admin:
             print('Item name is empty')
             messagebox.showerror(title='Упс... Ошибка', message='Пустое поле названия товара!')
 
-
     def add_recipe(self):
-        pass
+        error_list = []
+        if self.add_recipe_item.get() != '':
+            product_list = self.get_products_list()
+            for i in range(len(self.add_recipe_product_list)):
+                if self.add_recipe_product_list[i].get() != '':  # проверяем на пустоту - зачем такой заполнять?
+                    if self.add_recipe_amount_list[i].get() != '':
+                        if self.add_recipe_product_list[i].get() not in product_list:
+                            if check_float(self.add_recipe_amount_list[i].get()):
+                                self.add_recipe_row_execute(self.add_recipe_item.get(), self.add_recipe_product_list[i].get(), self.add_recipe_amount_list[i].get())
+                            else:
+                                error = f'Масса/объем продукта должно быть числом.'
+                                error=error+'\n'+f'Кол-во {self.add_recipe_product_list[i].get()} = {self.add_recipe_amount_list[i].get()} - не число'
+                                error_list.append(error)
+                        else:
+                            error = f'Продукт {self.add_recipe_product_list[i].get()} уже есть в рецепте - не добавлен'
+                            error_list.append(error)
+                    else:
+                        error = f'Пустое поле кол-ва для {self.add_recipe_product_list[i].get()}'
+                        error_list.append(error)
+                else:
+                    if self.add_recipe_amount_list[i].get() != '':  # проверяем, может просто пустая строка не нужная
+                        error = f'Пустое значение продукта в {i+1}-ой строке'
+                        error_list.append(error)
+                    else:
+                        pass
+            errors = ''
+            for error in error_list:
+                errors = errors+error+'\n'
+            messagebox.showerror(title='Лист ошибок', message='Пожалуйста, ознакомьтесь со списком невыполненных запросов'+'\n'+errors)
+        else:
+            messagebox.showerror(title='Упс... Ошибка', message='Пожалуйста,'+'\n'+'выберите товар')
+
+    def add_recipe_row_execute(self, item, product, amount):
+        cursor = self.data_base.cursor()
+        sql = """SELECT id FROM items WHERE item_name = ?"""
+        cursor.execute(sql, [item])
+        self.data_base.commit()
+        item_id = cursor.fetchall[0][0]
+        sql = """INSERT INTO recipe(food_name, mass_gr, product_id) VALUES (?, ?, ?)"""
+        cursor.execute(sql, [product, amount, item_id])
+        self.data_base.commit()
+        cursor.close()
+
+    def get_products_list(self):
+        sql = """SELECT id FROM items WHERE item_name = ?"""
+        cursor = self.data_base.cursor()
+        cursor.execute(sql, [self.add_recipe_item.get()])
+        self.data_base.commit()
+        item_id = cursor.fetchall()[0][0]
+        sql = """SELECT food_name from recipe WHERE product_id = ?"""
+        cursor.execute(sql, [item_id])
+        self.data_base.commit()
+        array = cursor.fetchall()
+        cursor.close()
+        lists = []
+        for arr in array:
+            lists.append(arr[0][0])
+        return lists
 
     def delete_product(self):
         if messagebox.askyesno(title='Удаление позиции', message='Вы уверены, что хотите удалить этот товар?'):
