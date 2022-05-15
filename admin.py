@@ -59,6 +59,7 @@ class Admin:
     def manage_window(self):
         self.change_price_module()
         self.add_item_module()
+        self.delete_item_module()
 
     def change_price_module(self):
         tk.Label(self.admin_table, text='Изменить цену товара', font=('Arial', 12)).grid(row=0, column=1, pady=5)
@@ -87,6 +88,13 @@ class Admin:
         self.add_item_cost = tk.Entry(self.admin_table, width=10, font=('Arial', 12))
         self.add_item_cost.grid(row=4, column=3, pady=5, padx=10)
         tk.Button(self.admin_table, command=self.add_new_product, text='сохранить', font=('Arial', 12)).grid(row=4, column=4, pady=5, padx=10)
+
+    def delete_item_module(self):
+        tk.Label(self.admin_table, text='Удалить товар', font=('Arial', 12)).grid(row=5, column=1, padx=10, pady=5)
+        values = self.get_items_name()
+        self.delete_item_name = ttk.Combobox(self.admin_table, values=values, width=30, state='readonly')
+        self.delete_item_name.grid(row=6, column=0, padx=5, pady=5)
+        tk.Button(self.admin_table, command=self.delete_product, text='удалить', font=('Arial, 12')).grid(row=6, column=2, pady=5, padx=10)
 
     def get_item_price(self, event="<Button>"):
         sql = ("""SELECT cost FROM items where item_name = ?""")
@@ -151,7 +159,15 @@ class Admin:
         pass
 
     def delete_product(self):
-        pass
+        if messagebox.askyesno(title='Удаление позиции', message='Вы уверены, что хотите удалить этот товар?'):
+            sql = ("""DELETE FROM items where item_name = ?""")
+            cursor = self.data_base.cursor()
+            cursor.execute(sql, [self.delete_item_name.get()])
+            self.data_base.commit()
+            cursor.close()
+            self.window.update()
+        else:
+            pass
 
     def update_recipe(self):
         pass
