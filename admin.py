@@ -172,21 +172,10 @@ class Admin:
                     if self.update_recipe_amount.get().isdigit() or check_float(self.update_recipe_amount.get()):
                         if self.update_recipe_command.get != '':
                             if self.update_recipe_command.get() == 'Обновить':
-                                sql = """UPDATE recipe SET mass_gr = ? WHERE product_id = ? AND food_name = ?"""
-                                cursor = self.data_base.cursor()
-                                amount = convert_to_float(self.update_recipe_amount.get())
-                                cursor.execute(sql, [amount, self.item_id, self.update_recipe_item_box.get()])
-                                self.data_base.commit()
-                                cursor.close()
-                                self.window.update()
+                                self.update_recipe()
                             else:
                                 if messagebox.askyesno(title='Удаление из рецепта', message='Вы уверены, что хотите удалить компонент из рецепта?'):
-                                    sql = """DELETE FROM recipe WHERE product_id = ? AND food_name = ?"""
-                                    cursor = self.data_base.cursor()
-                                    cursor.execute(sql, [self.item_id, self.update_recipe_item_box.get()])
-                                    self.data_base.commit()
-                                    cursor.close()
-                                    self.window.update()
+                                    self.delete_recipe()
                                 else:
                                     pass
                         else:
@@ -274,7 +263,21 @@ class Admin:
             pass
 
     def update_recipe(self):
-        pass
+        sql = """UPDATE recipe SET mass_gr = ? WHERE product_id = ? AND food_name = ?"""
+        cursor = self.data_base.cursor()
+        amount = convert_to_float(self.update_recipe_amount.get())
+        cursor.execute(sql, [amount, self.item_id, self.update_recipe_item_box.get()])
+        self.data_base.commit()
+        cursor.close()
+        self.window.update()
+
+    def delete_recipe(self):
+        sql = """DELETE FROM recipe WHERE product_id = ? AND food_name = ?"""
+        cursor = self.data_base.cursor()
+        cursor.execute(sql, [self.item_id, self.update_recipe_item_box.get()])
+        self.data_base.commit()
+        cursor.close()
+        self.window.update()
 
     def update_product_cost(self):
         item = self.change_price_combobox.get()
