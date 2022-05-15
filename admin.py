@@ -58,11 +58,44 @@ class Admin:
         cursor.close()
 
     def manage_window(self):
-        self.change_price_module()
-        self.add_item_module()
-        self.delete_item_module()
-        self.update_recipe_module()
-        self.add_recipe_module()
+        self.admin_intro()
+        # self.change_price_module()
+        # self.add_item_module()
+        # self.delete_item_module()
+        # self.update_recipe_module()
+        # self.add_recipe_module()
+
+    def admin_intro(self, default='Не выбрано'):
+        slaves = self.admin_table.grid_slaves()
+        for s in slaves:
+            s.destroy()
+        self.row_counter = 0
+        tk.Label(self.admin_table, text='Выберите операцию:  ', font=('Arial', 14)).grid(row=self.row_counter, column=0, padx=10, pady=5)
+        values = ['Изменить цену товара', 'Добавить товар', 'Удалить товар', 'Изменить/удалить рецепт', 'Добавить рецепт']
+        self.admin_combobox = ttk.Combobox(self.admin_table, values=values, font=('Arial', 12), state='readonly', width=25)
+        self.admin_combobox.grid(row=self.row_counter, column=1, padx=5, pady=5)
+        self.admin_combobox.set(default)
+        self.admin_combobox.bind("<<ComboboxSelected>>", self.choose_admin_module)
+        self.window.update()
+        self.row_counter += 1
+
+    def choose_admin_module(self, event):
+        default = self.admin_combobox.get()
+        if self.admin_combobox.get() == 'Изменить цену товара':
+            self.admin_intro(default)
+            self.change_price_module()
+        if self.admin_combobox.get() == 'Добавить товар':
+            self.admin_intro(default)
+            self.add_item_module()
+        if self.admin_combobox.get() == 'Удалить товар':
+            self.admin_intro(default)
+            self.delete_item_module()
+        if self.admin_combobox.get() == 'Изменить/удалить рецепт':
+            self.admin_intro(default)
+            self.update_recipe_module()
+        if self.admin_combobox.get() == 'Добавить рецепт':
+            self.admin_intro(default)
+            self.add_recipe_module()
 
     def change_price_module(self):
         tk.Label(self.admin_table, text='Изменить цену товара', font=('Arial', 12)).grid(row=self.row_counter, column=1, pady=5)
@@ -83,7 +116,7 @@ class Admin:
         self.add_item_name = tk.Entry(self.admin_table, font=('Arial', 12), width=25)
         self.add_item_name.grid(row=self.row_counter+2, column=0, pady=5, padx=5, sticky='w')
         tk.Label(self.admin_table, text='Объем\масса', font=('Arial', 12)).grid(row=self.row_counter+1, column=1, padx=10, pady=5)
-        self.add_item_amount = tk.Entry(self.admin_table, width=10, font=('Arial',12))
+        self.add_item_amount = tk.Entry(self.admin_table, width=10, font=('Arial', 12))
         self.add_item_amount.grid(row=self.row_counter+2, column=1, pady=5)
         tk.Label(self.admin_table, text='Тип товара', font=('Arial', 12)).grid(row=self.row_counter+1, column=2, pady=5)
         self.add_item_type = ttk.Combobox(self.admin_table, values=['кофе', 'чай', 'авторский', 'коктейл', 'выпечка'], font=('Arial', 12), width=10, state='readonly')
@@ -320,14 +353,18 @@ class Admin:
     def update_product_cost(self):
         item = self.change_price_combobox.get()
         if item != '':
-            sql = ("""UPDATE items SET cost = ? WHERE item_name = ?""")
-            cursor = self.data_base.cursor()
-            cursor.execute(sql, [self.change_price_entry.get(), self.change_price_combobox.get()])
-            self.data_base.commit()
-            cursor.close()
-            self.get_item_price()
-            self.window.update()
-        else: pass
+            if item.isdigit():
+                sql = ("""UPDATE items SET cost = ? WHERE item_name = ?""")
+                cursor = self.data_base.cursor()
+                cursor.execute(sql, [self.change_price_entry.get(), self.change_price_combobox.get()])
+                self.data_base.commit()
+                cursor.close()
+                self.get_item_price()
+                self.window.update()
+            else:
+                messagebox.showerror(title='Упс... Ошибка', message='Цена должна иметь целочисленное значение. Например: 270')
+        else:
+            messagebox.showerror(title='Упс... Ошибка', message='Пожалуйста, выберите товар')
 
 
 def check_str(str):
