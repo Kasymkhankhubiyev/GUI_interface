@@ -61,8 +61,8 @@ class Admin:
         self.change_price_module()
         self.add_item_module()
         self.delete_item_module()
-        self.add_recipe_module()
         self.update_recipe_module()
+        self.add_recipe_module()
 
     def change_price_module(self):
         tk.Label(self.admin_table, text='Изменить цену товара', font=('Arial', 12)).grid(row=self.row_counter, column=1, pady=5)
@@ -103,10 +103,48 @@ class Admin:
         self.row_counter += 2
 
     def add_recipe_module(self):
+        self.add_recipe_row_counter = 1
+        self.add_recipe_product_list = []
+        self.add_recipe_amount_list = []
         tk.Label(self.admin_table, text='Добавить рецепт', font=('Arial', 12)).grid(row=self.row_counter, column=1, padx=10, pady=5)
-
-        self.row_counter+=1
+        tk.Label(self.admin_table, text='Наименование товара', font=('Arial', 12)).grid(row=self.row_counter+1, column=0, padx=10, pady=5)
+        values = self.get_items_name()
+        self.add_recipe_item = ttk.Combobox(self.admin_table, values=values, width=25, font=('Arial', 12), state='readonly')
+        self.add_recipe_item.grid(row=self.row_counter+1, column=1, padx=5, pady=5)
+        tk.Button(self.admin_table, text='Добавить строку', font=('Arial', 12), command=self.create_recipe_line).grid(row=self.row_counter+1, column=2, pady=5, padx=5)
+        tk.Label(self.admin_table, text='Продукт', font=('Arial', 12)).grid(row=self.row_counter+2, column=0, padx=10, pady=5)
+        tk.Label(self.admin_table, text='Объем/масса', font=('Arial', 12)).grid(row=self.row_counter+2, column=1, padx=5, pady=5)
+        self.row_counter += 3
+        self.create_recipe_line()
         pass
+
+    def get_products_name(self):
+        sql = """SELECT food_name FROM foods_cpfc"""
+        cursor = self.data_base.cursor()
+        cursor.execute(sql)
+        self.data_base.commit()
+        array = cursor.fetchall()
+        lists = []
+        cursor.close()
+        for arr in array:
+            lists.append(arr[0])
+        return lists
+
+
+    def create_recipe_line(self):
+        if self.add_recipe_row_counter < 15:
+            self.add_recipe_row_counter += 1  # отслеживаем максимальное кол-во строк за один раз
+            values = self.get_products_name()
+            combox = ttk.Combobox(self.admin_table, values=values, font=('Arial', 12), state='readonly', width=25)
+            combox.grid(row=self.row_counter, column=0, padx=10, pady=5)
+            self.add_recipe_product_list.append(combox)
+            amountentry = tk.Entry(self.admin_table, width=10, font=('Arial', 12))
+            amountentry.grid(row=self.row_counter, column=1, padx=5, pady=5)
+            self.add_recipe_amount_list.append(amountentry)
+            self.row_counter += 1
+            self.window.update()
+        else:
+            messagebox.showerror(title='Упс... Ошибочка', message=f'Вы достигли максимума возмоных строк {self.add_recipe_row_counter}')
 
     def update_recipe_module(self):
         tk.Label(self.admin_table, text='Обновить рецептуру', font=('Arial', 12)).grid(row=self.row_counter, column=1, padx=10, pady=5)
