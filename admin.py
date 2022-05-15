@@ -59,11 +59,6 @@ class Admin:
 
     def manage_window(self):
         self.admin_intro()
-        # self.change_price_module()
-        # self.add_item_module()
-        # self.delete_item_module()
-        # self.update_recipe_module()
-        # self.add_recipe_module()
 
     def admin_intro(self, default='Не выбрано'):
         slaves = self.admin_table.grid_slaves()
@@ -284,33 +279,37 @@ class Admin:
     def add_new_product(self):
         if self.add_item_name.get() != '':  # cheking whether name in empty or not
             if check_str(self.add_item_name.get()):
-                if self.add_item_amount.get() != '':
-                    if self.add_item_amount.get().isdigit():
-                        if self.add_item_type.get() != '':
-                            if self.add_item_cost.get() != '':
-                                if self.add_item_cost.get().isdigit():
-                                    sql = ("""INSERT INTO items(item_name, type_id, cost)
-                                                Values (?, ?, ?)""")
-                                    name = self.add_item_name.get() + ' ' + self.add_item_amount.get()
-                                    cursor = self.data_base.cursor()
-                                    cursor.execute(sql, [name, item_type_case(self.add_item_type.get()), int(self.add_item_cost.get())])
-                                    self.data_base.commit()
-                                    cursor.close()
-                                    self.window.update()
+                items = self.get_items_name()
+                if self.add_item_name.get() not in items:
+                    if self.add_item_amount.get() != '':
+                        if self.add_item_amount.get().isdigit():
+                            if self.add_item_type.get() != '':
+                                if self.add_item_cost.get() != '':
+                                    if self.add_item_cost.get().isdigit():
+                                        sql = ("""INSERT INTO items(item_name, type_id, cost)
+                                                    Values (?, ?, ?)""")
+                                        name = self.add_item_name.get() + ' ' + self.add_item_amount.get()
+                                        cursor = self.data_base.cursor()
+                                        cursor.execute(sql, [name, item_type_case(self.add_item_type.get()), int(self.add_item_cost.get())])
+                                        self.data_base.commit()
+                                        cursor.close()
+                                        self.window.update()
+                                    else:
+                                        messagebox.showerror(title='Упс... Ошибка',
+                                                         message='Цена должна быть целым числом, например 270.')
                                 else:
                                     messagebox.showerror(title='Упс... Ошибка',
-                                                     message='Цена должна быть целым числом, например 270.')
+                                                         message='Введите цену товара, хотя бы примерную, позже можно будет изменить. Например: 180')
                             else:
-                                messagebox.showerror(title='Упс... Ошибка',
-                                                     message='Введите цену товара, хотя бы примерную, позже можно будет изменить. Например: 180')
+                                messagebox.showerror(title='Упс... Ошибка', message='Выберите тип продукта!')
                         else:
-                            messagebox.showerror(title='Упс... Ошибка', message='Выберите тип продукта!')
+                            messagebox.showerror(title='Упс... Ошибка',
+                                             message='масса или объем должны быть целочисленными,'+'\n'+'Например: 250')
                     else:
                         messagebox.showerror(title='Упс... Ошибка',
-                                             message='масса или объем должны быть целочисленными, Например: 250')
-                else:
-                    messagebox.showerror(title='Упс... Ошибка',
                                          message='Пустое поле кол-ва: масса в гр, объем в мл., например: 250')
+                else:
+                    messagebox.showerror(title='Упс... Ошибка', message=f'{self.add_item_name.get()} уже существует')
             else:
                 messagebox.showerror(title='Упс... Ошибка', message='Название не может быть числом или математическим выражением! Пример: Капучино.')
         else:
