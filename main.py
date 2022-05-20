@@ -77,12 +77,11 @@ def add_to_basket(spin):  #(button):
                 names.append(i_name)
             if item_name in names:
                 k = names.index(item_name)
-                basket_list.pop(k)
+                basket_list.pop(k)  # удаляем из списка т.к. нулевое кол-во
         else:
             pass
     fill_basket()
     win.update()
-# возможно нужно добавить, что если value = 0 нужно удалить из списка
 
 
 def sum_calories(calories):
@@ -214,6 +213,23 @@ def calculate_calories():
     else:
         pass
 
+def clear_basket(button):
+    item_id = button.get_button_id()
+    item_name = item_list[item_id].get_item_name()
+    names = []
+    if len(basket_list) != 0:
+        for i in range(len(basket_list)):
+            i_name = basket_list[i][0]
+            names.append(i_name)
+        if item_name in names:
+            k = names.index(item_name)
+            basket_list.pop(k)  # удаляем из списка т.к. нулевое кол-во
+            spinbox_list[item_id].delete(0, 1)
+            spinbox_list[item_id].insert(0, 0)
+            add_to_basket(spinbox_list[item_id])
+    else:
+        pass
+
 def prod_win_construct(table, prod_list, items_list, spinboxs_list, buttons_list, row_counter):
     for row in range(len(prod_list)):
         lbl = mylabel.ItemLabel(table, text=prod_list[row], item_name=prod_list[row], font=('Arial', 12))
@@ -221,13 +237,13 @@ def prod_win_construct(table, prod_list, items_list, spinboxs_list, buttons_list
         items_list.append(lbl)
         tk.Label(table, text='кол-во', font=('Arial', 12)).grid(row=row, column=1, padx=10, pady=5)
         #spin = tk.Spinbox(table, from_=0, to=100, width=5, font=('Arial', 12))
-        spin = MySpinBox.MySpinbox(table, from_=0, to=100, width=5, font=('Arial', 12), drink_id=row+row_counter)
+        spin = MySpinBox.MySpinbox(table, from_=0, to=100, width=5, font=('Arial', 12), item_id=row+row_counter)
         spin.config(command=lambda spn=spin: add_to_basket(spn))
         spin.grid(row=row, column=2, padx=10, pady=5)
         spinboxs_list.append(spin)
         #spin.bind("<<>>")
-        btn = button.Mybutton(table, drink_id=row+row_counter, text='🛒', fg='GREEN', font=('Aril', 11))
-        btn.config(command=lambda button=btn: add_to_basket(button))
+        btn = button.Mybutton(table, drink_id=row+row_counter, text='❌', fg='RED', font=('Aril', 11))
+        btn.config(command=lambda button=btn: clear_basket(button))
         buttons_list.append(btn)
         btn.grid(row=row, column=3, padx=10, pady=5)
 
