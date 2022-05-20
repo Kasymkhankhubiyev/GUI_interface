@@ -6,6 +6,7 @@ import sqlite3 as db
 import button
 import mylabel
 import admin
+import MySpinBox
 
 
 # sql_query = '''INSERT INTO login_passwd(login, passwd)
@@ -47,16 +48,16 @@ def create_window():
     return window
 
 
-def add_to_basket(button):
-    item_id = button.get_button_id()
+def add_to_basket(spin):  #(button):
+    item_id = spin.get_spinbox_id()     #button.get_button_id()
     value = spinbox_list[item_id].get()
     item_name = item_list[item_id].get_item_name()
-    sql = """SELECT cost FROM items WHERE item_name = ?"""
+    sql = """SELECT cost FROM items WHERE item_name = ?"""  # хорошо бы делать выборку по типу товара, а потом по имени.
     cursor.execute(sql, [item_name])
     cost = cursor.fetchall()
     items = [item_name, str(value), int(cost[0][0]) * int(value)]
     names = []
-    if value != '0':
+    if value != '0':  # если выбрано больше 0 единиц товара
         if len(basket_list) != 0:
             for i in range(len(basket_list)):
                 i_name = basket_list[i][0]
@@ -64,11 +65,21 @@ def add_to_basket(button):
             if item_name in names:
                 k = names.index(item_name)
                 basket_list[k][1] = value
-                basket_list[k][2] *= int(value)
+                basket_list[k][2] =items[2]  # int(basket_list[k][2]) * int(value)
             else:
                 basket_list.append(items)
         else:
             basket_list.append(items)
+    else:  # выбрали 0 единиц товара
+        if len(basket_list) != 0:
+            for i in range(len(basket_list)):
+                i_name = basket_list[i][0]
+                names.append(i_name)
+            if item_name in names:
+                k = names.index(item_name)
+                basket_list.pop(k)
+        else:
+            pass
     fill_basket()
     win.update()
 # возможно нужно добавить, что если value = 0 нужно удалить из списка
@@ -82,9 +93,9 @@ def sum_calories(calories):
 
 def order_coast(items):
     cost = 0
-    for item in items:
-        cost += item[2]
-        print(item)
+    for i in range(len(items)):
+        cost += items[i][2]
+        print(items[i])
     return cost
 
 
@@ -110,8 +121,9 @@ def basket_with_calories():
     tree.grid(row=0, column=0, sticky=tk.W+tk.E)
     ysb.grid(row=0, column=1, sticky=tk.N + tk.S)
 
-    tk.Button(basket_table, text='Рассчитать КБЖУ и Стоимость', command=calculate_calories, font=('Arial', 12)).grid(
-        row=1, column=0, padx=10, pady=5)
+    tk.Label(basket_table, text="Расчет КБЖУ и Стоимости", font=('Arial', 15)).grid(row=1, column=0, padx=10, pady=5)
+    # tk.Button(basket_table, text='Рассчитать КБЖУ и Стоимость', command=calculate_calories, font=('Arial', 12)).grid(
+    #     row=1, column=0, padx=10, pady=5)
 
     columns = (1, 2)
     caltree = ttk.Treeview(basket_table, show="headings", column=columns, height=7)
@@ -157,8 +169,10 @@ def fill_basket():  # basket_list, basket_table):
 
     tree.grid(row=0, column=0)
     ysb.grid(row=0, column=1, sticky=tk.N + tk.S)
-    tk.Button(basket_table, text='Рассчитать КБЖУ и Стоимость', command=calculate_calories, font=('Arial', 12)).grid(row=len(basket_list) + 1,
-                                                                                         column=0, padx=10, pady=5)
+    tk.Label(basket_table, text="Расчет КБЖУ и Стоимости", font=('Atial', 17)).grid(row=len(basket_list) + 1, column=0, padx=10, pady=5)
+    #tk.Button(basket_table, text='Рассчитать КБЖУ и Стоимость', command=calculate_calories, font=('Arial', 12)).grid(row=len(basket_list) + 1,
+    #                                                                                     column=0, padx=10, pady=5)
+    calculate_calories()
 
 def calculate_calories():
     calories_list.clear()
@@ -206,9 +220,12 @@ def prod_win_construct(table, prod_list, items_list, spinboxs_list, buttons_list
         lbl.grid(row=row, column=0, padx=10, pady=5, sticky='w')
         items_list.append(lbl)
         tk.Label(table, text='кол-во', font=('Arial', 12)).grid(row=row, column=1, padx=10, pady=5)
-        spin = tk.Spinbox(table, from_=0, to=100, width=5, font=('Arial', 12))
+        #spin = tk.Spinbox(table, from_=0, to=100, width=5, font=('Arial', 12))
+        spin = MySpinBox.MySpinbox(table, from_=0, to=100, width=5, font=('Arial', 12), drink_id=row+row_counter)
+        spin.config(command=lambda spn=spin: add_to_basket(spn))
         spin.grid(row=row, column=2, padx=10, pady=5)
         spinboxs_list.append(spin)
+        #spin.bind("<<>>")
         btn = button.Mybutton(table, drink_id=row+row_counter, text='🛒', fg='GREEN', font=('Aril', 11))
         btn.config(command=lambda button=btn: add_to_basket(button))
         buttons_list.append(btn)
