@@ -51,9 +51,10 @@ def create_window():
 def add_to_basket(spin):  #(button):
     item_id = spin.get_spinbox_id()     #button.get_button_id()
     value = spinbox_list[item_id].get()
+    item_type_id = spin.get_item_type()
     item_name = item_list[item_id].get_item_name()
-    sql = """SELECT cost FROM items WHERE item_name = ?"""  # хорошо бы делать выборку по типу товара, а потом по имени.
-    cursor.execute(sql, [item_name])
+    sql = """SELECT cost FROM items WHERE type_id = ? and item_name = ?"""  # хорошо бы делать выборку по типу товара, а потом по имени.
+    cursor.execute(sql, [item_type_id, item_name])
     cost = cursor.fetchall()
     items = [item_name, str(value), int(cost[0][0]) * int(value)]
     names = []
@@ -230,14 +231,14 @@ def clear_basket(button):
     else:
         pass
 
-def prod_win_construct(table, prod_list, items_list, spinboxs_list, buttons_list, row_counter):
+def prod_win_construct(table, prod_list, items_list, spinboxs_list, buttons_list, row_counter, item_type):
     for row in range(len(prod_list)):
         lbl = mylabel.ItemLabel(table, text=prod_list[row], item_name=prod_list[row], font=('Arial', 12))
         lbl.grid(row=row, column=0, padx=10, pady=5, sticky='w')
         items_list.append(lbl)
         tk.Label(table, text='кол-во', font=('Arial', 12)).grid(row=row, column=1, padx=10, pady=5)
         #spin = tk.Spinbox(table, from_=0, to=100, width=5, font=('Arial', 12))
-        spin = MySpinBox.MySpinbox(table, from_=0, to=100, width=5, font=('Arial', 12), item_id=row+row_counter)
+        spin = MySpinBox.MySpinbox(table, from_=0, to=100, width=5, font=('Arial', 12), item_id=row+row_counter, item_type_id=item_type)
         spin.config(command=lambda spn=spin: add_to_basket(spn))
         spin.grid(row=row, column=2, padx=10, pady=5)
         spinboxs_list.append(spin)
@@ -278,25 +279,25 @@ try:
 
     product_list = get_items(1)  # gets items for the coffee table
 
-    prod_win_construct(coffee_table, product_list, item_list, spinbox_list, button_list, row_counter)  # fills in
+    prod_win_construct(coffee_table, product_list, item_list, spinbox_list, button_list, row_counter, item_type=1)  # fills in
 
     row_counter = len(product_list)  # increase the item counter for a button list
     product_list.clear()
     product_list = get_items(2)
 
-    prod_win_construct(raf_table, product_list, item_list, spinbox_list, button_list, row_counter)
+    prod_win_construct(raf_table, product_list, item_list, spinbox_list, button_list, row_counter, item_type=2)
 
     row_counter += len(product_list)
     product_list.clear()
     product_list = get_items(3)
 
-    prod_win_construct(milk_shake_table, product_list, item_list, spinbox_list, button_list, row_counter)
+    prod_win_construct(milk_shake_table, product_list, item_list, spinbox_list, button_list, row_counter, item_type=3)
 
     row_counter += len(product_list)
     product_list.clear()
     product_list = get_items(4)
 
-    prod_win_construct(tea_table, product_list, item_list, spinbox_list, button_list, row_counter)
+    prod_win_construct(tea_table, product_list, item_list, spinbox_list, button_list, row_counter, item_type=4)
 
     for row in range(len(basket_list)):
         tk.Label(basket_table, text=basket_list[row][0], font=('Arial', 12)).grid(row=row, column=0, padx=10, pady=5)
