@@ -1,4 +1,5 @@
 import tkinter as tk
+import random
 from tkinter.ttk import Combobox
 from tkinter import ttk
 import sqlite3 as db
@@ -31,9 +32,51 @@ class CustomerCabinet:
         login = self.login.get()
         pwd = self.password.get()
         log_pwd = self.get_login_pwd(login)
+        if log_pwd == 0:
+            messagebox.showerror(title="Ups, error...", message='No such login')
+        else:
+            if log_pwd == pwd:
+                pass  # run the cabinet
+            else:
+                messagebox.showerror(title='Ups, error...', message='Incorrect pwd')
 
     def get_login_pwd(self, login):
-        return 0
+        sql = """SELECT user_pwd FROM customers WHERE user_login = ?"""
+        cursor = self.dbase.cursor()
+        cursor.execute(sql, [login])
+        self.dbase.commit()
+        result = cursor.fetchall()
+        if len(result) == 0:
+            print('Nothing found....')
+            return 0
+        else:
+            return result[0]
+
+    def draw_registration_window(self):
+        tk.Label(self.cabin, text='ЛОГИН', font=('Arial', 12)).place(x=130, y=100)
+        self.reg_login = tk.Entry(self.cabin, font=('Arial', 14), width=25)
+        self.reg_login.place(x=250, y=100)
+        tk.Label(self.cabin, text='ПАРОЛЬ', font=('Arial', 12)).place(x=130, y=140)
+        self.reg_pwd = tk.Entry(self.cabin, font=('Arial', 14), width=25, show='*')
+        self.reg_pwd.place(x=250, y=140)
+        tk.Label(self.cabin, text='ПАРОЛЬ', font=('Arial', 12)).place(x=130, y=180)
+        self.reg_rep_pwd = tk.Entry(self.cabin, font=('Arial', 14), width=25, show='*')
+        self.reg_rep_pwd.place(x=250, y=180)
+        tk.Button(self.cabin, text='Подтвердить', font=('Arial', 14), command=self.add_customer).place(x=190, y=220)
 
     def create_account(self):
-        pass
+        slaves = self.cabin.place_slaves()
+        for slave in slaves:
+            slave.destroy()
+        self.draw_registration_window()
+
+
+    def add_customer(self):
+        if self.reg_login.get() != '':
+            pass
+        else:
+            text = self.reg_login.get()
+            self.reg_login = tk.Entry(self.cabin, font=('Arial', 14), background='RED', width=25)
+            self.reg_login.insert(0, text)
+            self.reg_login.place(x=250, y=100)
+            messagebox.showerror(title='Error', message='Поле "Логин" пустое.')
