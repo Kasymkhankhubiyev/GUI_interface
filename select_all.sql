@@ -136,4 +136,7 @@ cursor.execute("""SELECT item_name, ROUNd(SUM(cals), 2), ROUND(SUM(prots), 2), R
         print(item)
 
 
-SELECT item_name from items WHERE type_id
+CREATE TABLE order_history(
+id INTEGER PRIMARY KEY,
+customer_ip INTEGER,
+)
