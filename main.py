@@ -8,6 +8,7 @@ import mylabel
 import admin
 import MySpinBox
 import customer
+import customercabinet
 
 
 # sql_query = '''INSERT INTO login_passwd(login, passwd)
@@ -280,6 +281,8 @@ try:
     db_connection = db.connect('coffee.db')
     cursor = db_connection.cursor()
 
+    customer = customer.Customer()
+
     win = create_window()
     win.protocol('WM_DELETE_WINDOW', on_closing)
     rnb_image = tk.PhotoImage(file='rnb.png')
@@ -334,7 +337,7 @@ try:
         tk.Label(basket_table, text=basket_list[row][1], font=('Arial', 12)).grid(row=row, column=1, padx=10, pady=5)
 
     admin_table = admin.Admin(win, tab_control, db_connection)
-    customer_table = customer.CustomerCabinet(win, tab_control, db_connection)
+    customer_table = customercabinet.CustomerCabinet(win, tab_control, db_connection, customer)
 
     tab_control.pack(expand=1, fill='both')
 

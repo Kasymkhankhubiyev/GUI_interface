@@ -149,8 +149,8 @@ FOREIGN KEY (customer_id) REFERENCES customers(user_id)
 CREATE TABLE customers(
 id INTEGER PRIMARY KEY,
 user_id TEXT NOT NULL UNIQUE,
-user_login TEXT NOT NULL,
-user_pwd = TEXT NOT NULL
+user_login TEXT NOT NULL UNIQUE,
+user_pwd TEXT NOT NULL
 )
 
 CREATE TABLE item_types(
