@@ -7,6 +7,7 @@ import button
 import mylabel
 import admin
 import MySpinBox
+import customer
 
 
 # sql_query = '''INSERT INTO login_passwd(login, passwd)
@@ -248,6 +249,32 @@ def prod_win_construct(table, prod_list, items_list, spinboxs_list, buttons_list
         buttons_list.append(btn)
         btn.grid(row=row, column=3, padx=10, pady=5)
 
+def get_type_numbers():
+    sql = """SELECT * FROM item_types"""
+    cursor.execute(sql)
+    db_connection.commit()
+    array = cursor.fetchall()
+    numbers = []
+    for arr in array:
+        print(arr)
+        numbers.append(arr)
+    return numbers
+
+
+def make_main_window(table_control, item_list, spinbox_list, button_list):  # , row_counter
+    numbers = get_type_numbers()
+    tables = []
+    rows = 0
+    for i in range(len(numbers)):
+        table = ttk.Frame(tab_control)
+        table_control.add(table, text=numbers[i][1])
+        tables.append(table)
+        prod_list = get_items(int(numbers[i][0]))  # gets items for the coffee table
+        prod_win_construct(table, prod_list, item_list, spinbox_list, button_list, rows,
+                           item_type=1)  # fills in
+        rows += len(prod_list)
+    return tables
+
 
 try:
     db_connection = db.connect('coffee.db')
@@ -267,7 +294,6 @@ try:
 
     tab_control = ttk.Notebook(win)
     coffee_table = ttk.Frame(tab_control)
-    basket_table = ttk.Frame(tab_control)
     raf_table = ttk.Frame(tab_control)
     tea_table = ttk.Frame(tab_control)
     milk_shake_table = ttk.Frame(tab_control)
@@ -275,35 +301,40 @@ try:
     tab_control.add(raf_table, text='Авторский кофе')
     tab_control.add(tea_table, text='Чай')
     tab_control.add(milk_shake_table, text='Милк Шейки')
+    basket_table = ttk.Frame(tab_control)
     tab_control.add(basket_table, text='КОРЗИНА')
+    # cabin = ttk.Frame(tab_control)
+    # tab_control.add(cabin, text='АККАУНТ ⎆')
+
+    #get_type_numbers()
+    #table_list = make_main_window(tab_control, item_list, spinbox_list, button_list)
 
     product_list = get_items(1)  # gets items for the coffee table
-
     prod_win_construct(coffee_table, product_list, item_list, spinbox_list, button_list, row_counter, item_type=1)  # fills in
-
-    row_counter = len(product_list)  # increase the item counter for a button list
+    row_counter += len(product_list)  # increase the item counter for a button list
     product_list.clear()
+
     product_list = get_items(2)
-
     prod_win_construct(raf_table, product_list, item_list, spinbox_list, button_list, row_counter, item_type=2)
-
     row_counter += len(product_list)
     product_list.clear()
+
     product_list = get_items(3)
-
     prod_win_construct(milk_shake_table, product_list, item_list, spinbox_list, button_list, row_counter, item_type=3)
-
     row_counter += len(product_list)
     product_list.clear()
-    product_list = get_items(4)
 
+    product_list = get_items(4)
     prod_win_construct(tea_table, product_list, item_list, spinbox_list, button_list, row_counter, item_type=4)
+    row_counter += len(product_list)
+    product_list.clear()
 
     for row in range(len(basket_list)):
         tk.Label(basket_table, text=basket_list[row][0], font=('Arial', 12)).grid(row=row, column=0, padx=10, pady=5)
         tk.Label(basket_table, text=basket_list[row][1], font=('Arial', 12)).grid(row=row, column=1, padx=10, pady=5)
 
     admin_table = admin.Admin(win, tab_control, db_connection)
+    customer_table = customer.CustomerCabinet(win, tab_control, db_connection)
 
     tab_control.pack(expand=1, fill='both')
 

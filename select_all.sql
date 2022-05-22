@@ -138,5 +138,29 @@ cursor.execute("""SELECT item_name, ROUNd(SUM(cals), 2), ROUND(SUM(prots), 2), R
 
 CREATE TABLE order_history(
 id INTEGER PRIMARY KEY,
-customer_ip INTEGER,
+customer_id INTEGER NOT NULL,
+item_id INTEGER NOT NULL,
+item_type INTEGER NOT NULL,
+item_amount INTEGER NOT NULL,
+order_date DATE NOT NULL
+FOREIGN KEY (customer_id) REFERENCES customers(user_id)
 )
+
+CREATE TABLE customers(
+id INTEGER PRIMARY KEY,
+user_id TEXT NOT NULL UNIQUE,
+user_login TEXT NOT NULL,
+user_pwd = TEXT NOT NULL
+)
+
+CREATE TABLE item_types(
+id INTEGER NOT NULL PRIMARY KEY,
+type_name TEXT NOT NULL UNIQUE
+)
+
+INSERT INTO item_types(type_name)
+VALUES
+    ('Кофе'),
+    ('Авторский'),
+    ('Коктейл'),
+    ('Чай')
