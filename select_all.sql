@@ -139,12 +139,24 @@ cursor.execute("""SELECT item_name, ROUNd(SUM(cals), 2), ROUND(SUM(prots), 2), R
 CREATE TABLE order_history(
 id INTEGER PRIMARY KEY,
 customer_id INTEGER NOT NULL,
-item_id INTEGER NOT NULL,
-item_type INTEGER NOT NULL,
+item_name TEXT NOT NULL,
 item_amount INTEGER NOT NULL,
-order_date DATE NOT NULL
+order_date TEXT NOT NULL,
+order_status TEXT NOT NULL,
+order_cost INTEGER NOT NULL,
 FOREIGN KEY (customer_id) REFERENCES customers(user_id)
 )
+
+INSERT INTO order_history(customer_id, item_name, item_amount, order_date, order_status, order_cost)
+VALUES
+    ('122.25.50.190', 'Американо 250', 1, '2022-05-01', 'Получен', 140),
+    ('122.25.50.190', 'Латте 400', 2, '2022-05-02', 'Получен', 340),
+    ('122.25.50.190', 'Раф халва 350', 1, '2022-05-07', 'Получен', 220),
+    ('122.25.50.190', 'Латте 400', 1, '2022-05-09', 'Получен', 170),
+    ('122.25.50.190', 'Американо 250', 2, '2022-05-10', 'Получен', 280),
+    ('122.25.50.190', 'Какао 350', 1, '2022-05-11', 'Получен', 180),
+    ('122.25.50.190', 'Латте Матча', 1, '2022-05-12', 'Получен', 200),
+    ('122.25.50.190', 'Капучино 180', 1, '2022-05-14', 'Получен', 120)
 
 CREATE TABLE customers(
 id INTEGER PRIMARY KEY,

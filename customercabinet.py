@@ -66,20 +66,31 @@ class CustomerCabinet:
         row = 0
         self.order_list.clear()
         self.order_buttons.clear()
-        tk.Label(self.cabin, text="Выберите операцию:", font=('Arial', 14)).grid(row=0, column=1, pady=5, padx=10)
+        tk.Label(self.cabin, text="Выберите операцию:", font=('Arial', 14)).grid(row=0, column=0, pady=5, padx=10)
         values=['главная страница', 'история заказов', 'аналитика', 'личные данные']
         self.command_combobox=ttk.Combobox(self.cabin, values=values, font=('Arial', 14), state='readonly', width=25)
-        self.command_combobox.grid(row=1, column=2, padx=10, pady=5)
+        self.command_combobox.grid(row=1, column=0, padx=10, pady=5)
         self.command_combobox.set(default)
         self.command_combobox.bind("<<ComboboxSelected>>", self.choose_command)
         tk.Label(self.cabin, text='Текущие заказы:')
         row += 2
         self.order_list = self.get_current_orders(self.customer.return_uid())
+        columns = (1, 2, 3)
+        tree = ttk.Treeview(self.cabin, show='headings', column=columns, height=7)
+        tree.heading(1, text='Заказ №')
+        tree.heading(2, text='Дата')
+        tree.heading(3, text='Статус')
+        ysb = ttk.Scrollbar(self.cabin, orient=tk.VERTICAL, command=tree.yview)
+        tree.configure(yscroll=ysb.set)
         for order in self.order_list:
+            tree.insert("", tk.END, values=order)
+
+        tree.grid(row=row, column=0, sticky=tk.W+tk.E)
+        ysb.grid(row=row, column=1, sticky=tk.N+tk.S)
 
 
     def get_current_orders(self, uid):
-        sql = """SELECT id, order_date, order_status FROM history WHERE user_id = ?"""
+        sql = """SELECT id, order_date, order_status FROM order_history WHERE customer_id = ?"""
         cursor = self.dbase.cursor()
         cursor.execute(sql, [uid])
         self.dbase.commit()
