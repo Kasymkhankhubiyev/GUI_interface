@@ -90,6 +90,21 @@ class CustomerCabinet:
 
         tree.grid(row=row, column=0, sticky=tk.W+tk.E)
         ysb.grid(row=row, column=1, sticky=tk.N+tk.S)
+        values = []
+        for order in self.order_list:
+            values.append(order[0])
+
+        tk.Label(self.cabin, text='Отменить заказ №', font=('Arial', 14)).grid(row=3, column=0)
+        self.choose_order_to_delete_combobox = ttk.Combobox(self.cabin, values=values, font=('Arial', 12), state="readonly")
+        self.choose_order_to_delete_combobox.grid(row=4, column=0)
+        self.choose_order_to_delete_combobox.bind("<<ComboboxSelected>>", self.delete_order)
+
+    def delete_order(self):
+        sql = """DELETE FROM order_history WHERE customer_id = ? AND id = ? """
+        cursor = self.dbase.cursor()
+        cursor.execute(sql, [self.customer.return_uid(), self.choose_order_to_delete_combobox.get()])
+        self.dbase.commit()
+
 
 
     def get_current_orders(self, uid):

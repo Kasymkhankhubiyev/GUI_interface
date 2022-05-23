@@ -151,7 +151,7 @@ item_name TEXT NOT NULL,
 item_amount INTEGER NOT NULL,
 item_type INTEGER NOT NULL,
 item_cost INTEGER NOT NULL,
-FOREIGN KEY(order_id) REFERENCES order_history(id))
+FOREIGN KEY(order_id) REFERENCES order_history(id) ON DELETE CASCADE ON UPDATE CASCADE)
 
 INSERT INTO orders(order_id, item_name, item_amount, item_type, item_cost)
 VALUES
