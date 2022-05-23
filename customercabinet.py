@@ -35,18 +35,20 @@ class CustomerCabinet:
         login = self.login.get()
         pwd = self.password.get()
         log_pwd = self.get_login_pwd(login)
-        for slave in self.cabin.place_slaves():
-            slave.destroy()
-        self.cabinet_window()
-        # if log_pwd == 0:
-        #     messagebox.showerror(title="Ups, error...", message='No such login')
-        # else:
-        #     if log_pwd == pwd:
-        #         uid = self.get_user_uid(login)
-        #         self.customer = customer.Customer(login, uid)  # инициализируем пользователя
-        #         self.cabinet_window()
-        #     else:
-        #         messagebox.showerror(title='Ups, error...', message='Incorrect pwd')
+        # for slave in self.cabin.place_slaves():
+        #     slave.destroy()
+        # self.cabinet_window()
+        if log_pwd == 0:
+            messagebox.showerror(title="Ups, error...", message='No such login')
+        else:
+            if log_pwd == pwd:
+                uid = self.get_user_uid(login)
+                for slave in self.cabin.place_slaves():
+                    slave.destroy()
+                self.customer = customer.Customer(login, uid)  # инициализируем пользователя
+                self.cabinet_window()
+            else:
+                messagebox.showerror(title='Ups, error...', message='Incorrect pwd')
 
     def get_login_pwd(self, login):
         cursor = self.dbase.cursor()
@@ -90,15 +92,15 @@ class CustomerCabinet:
 
 
     def get_current_orders(self, uid):
-        sql = """SELECT id, order_date, order_status FROM order_history WHERE customer_id = ?"""
+        sql = """SELECT id, order_date, order_status FROM order_history WHERE customer_id = ? AND order_status = 'ГОТОВИТСЯ'"""
         cursor = self.dbase.cursor()
         cursor.execute(sql, [uid])
         self.dbase.commit()
         lists = []
         array = cursor.fetchall()
         for arr in array:
-            print(arr[0])
-            lists.append(arr[0])
+            print(arr)
+            lists.append(arr)
         return lists
 
     def choose_command(self, event):
@@ -113,7 +115,50 @@ class CustomerCabinet:
             self.user_data(command)
 
     def history_window(self, command_name):
-        pass
+        for slave in self.cabin.grid_slaves():
+            slave.destroy()
+        row = 0
+        self.order_list.clear()
+        self.order_buttons.clear()
+        tk.Label(self.cabin, text="Выберите операцию:", font=('Arial', 14)).grid(row=0, column=0, pady=5, padx=10)
+        values=['главная страница', 'история заказов', 'аналитика', 'личные данные']
+        self.command_combobox=ttk.Combobox(self.cabin, values=values, font=('Arial', 14), state='readonly', width=25)
+        self.command_combobox.grid(row=1, column=0, padx=10, pady=5)
+        self.command_combobox.set(command_name)
+        self.command_combobox.bind("<<ComboboxSelected>>", self.choose_command)
+        tk.Label(self.cabin, text='История заказов:')
+        row += 2
+        self.order_list = self.get_orders_history(self.customer.return_uid())
+        columns = (1, 2, 3, 4)
+        tree = ttk.Treeview(self.cabin, show='headings', column=columns, height=7)
+        tree.heading(1, text='Заказ №')
+        tree.column(1, width=70, stretch=False)
+        tree.heading(2, text='Дата')
+        tree.column(2, minwidth=100, stretch=False)
+        tree.heading(3, text='Статус')
+        tree.column(4, width=70, stretch=False)
+        tree.heading(4, text='Стоимость')
+        tree.column(4, width=70, stretch=False)
+        ysb = ttk.Scrollbar(self.cabin, orient=tk.VERTICAL, command=tree.yview)
+        tree.configure(yscroll=ysb.set)
+        for order in self.order_list:
+            tree.insert("", tk.END, values=order)
+
+        tree.grid(row=row, column=0, sticky=tk.W + tk.E)
+        ysb.grid(row=row, column=1, sticky=tk.N + tk.S)
+
+        tk.Label(self.cabin, text='Подребнее').grid(row=row+1,column=0,padx=10, pady=5)
+
+    def get_orders_history(self, uid):
+        sql = """SELECT id, order_date, order_status, SUM(order_cost) FROM order_history WHERE customer_id = ? GROUP BY id"""
+        cursor = self.dbase.cursor()
+        cursor.execute(sql, [uid])
+        self.dbase.commit()
+        array = cursor.fetchall()
+        result = []
+        for arr in array:
+            result.append(arr)
+        return result
 
     def analytic_window(self, command):
         pass
