@@ -5,6 +5,7 @@ from tkinter import ttk
 import sqlite3 as db
 from tkinter import messagebox
 import customer
+import datetime
 
 
 class CustomerCabinet:
@@ -190,31 +191,183 @@ class CustomerCabinet:
         self.month_button.grid(row=row, column=1, padx=5, pady=5, sticky=tk.W)
         self.year_button = tk.Radiobutton(self.cabin, text='Год', variable=self.r_var, value=2, command=self.draw_year_charts)
         self.year_button.grid(row=row, column=2, padx=5, pady=5, sticky=tk.W)
-        self.interval_button = tk.Radiobutton(self.cabin, text='Интервал', variable=self.r_var, value=3, command=self.draw_interval_charts)
+        self.interval_button = tk.Radiobutton(self.cabin, text='Интервал', variable=self.r_var, value=3, command=self.interval_trigger)
         self.interval_button.grid(row=row, column=3, padx=5, pady=5, sticky=tk.W)
 
     def draw_week_charts(self):
         print('WEEK')
-        sql = """SELECT item_name, date(order_date)
-                FROM order_history
-                WHERE order_date BETWEEN date('2022-05-13 12:40:00') AND (SELECT date('2022-05-13', 'start of day', '-1 day'))"""
-        # sql = """SELECT * FROM order_history"""
+        a = datetime.datetime.today() #.strftime("%Y-%m-%d")
+        b = datetime.datetime(a.year, a.month, a.day - 7)
+        print(a.strftime("%Y-%m-%d"))
+        print(b.strftime("%Y-%m-%d"))
+
+        # sql = """SELECT item_name, item_amount, item_cost, date(order_date) # по каждому товару
+        #         FROM orders
+        #         INNER JOIN
+        #         order_history ON order_id = order_history.id
+        #         WHERE customer_id = ? and date(order_date) BETWEEN ? AND ?"""
+
+        sql = """SELECT date(order_date), COUNT(order_history.id), SUM(item_amount * item_cost)
+                FROM orders
+                INNER JOIN
+                order_history ON order_id =order_history.id
+                WHERE customer_id = ? and date(order_date) BETWEEN ? AND ?
+                GROUP BY date(order_date), order_history.id"""
         cursor = self.dbase.cursor()
         uid = self.customer.return_uid()
-        cursor.execute(sql)
+        cursor.execute(sql, [uid, b, a])
         self.dbase.commit()
         array = cursor.fetchall()
         for arr in array:
             print(arr)
+        columns = (1, 2, 3)
+        tree = ttk.Treeview(self.cabin, show='headings', column=columns, height=7)
+        tree.heading(1, text='Дата')
+        tree.column(1, width=70, stretch=False)
+        tree.heading(2, text='кол-во заказов')
+        tree.column(2, minwidth=100, stretch=False)
+        tree.heading(3, text='Стимость')
+        tree.column(3, width=70, stretch=False)
+        ysb = ttk.Scrollbar(self.cabin, orient=tk.VERTICAL, command=tree.yview)
+        tree.configure(yscroll=ysb.set)
+        for order in array:
+            tree.insert("", tk.END, values=order)
+
+        tree.grid(row=3, column=0, sticky=tk.W + tk.E, columnspan=4)
+        ysb.grid(row=3, column=4, sticky=tk.N + tk.S)
 
     def draw_month_charts(self):
         print('MONTH')
+        a = datetime.datetime.today()  # .strftime("%Y-%m-%d")
+        b = datetime.datetime(a.year, a.month - 1, a.day)
+        print(a.strftime("%Y-%m-%d"))
+        print(b.strftime("%Y-%m-%d"))
+
+        sql = """SELECT date(order_date), COUNT(order_history.id), SUM(item_amount * item_cost)
+                        FROM orders
+                        INNER JOIN
+                        order_history ON order_id =order_history.id
+                        WHERE customer_id = ? and date(order_date) BETWEEN ? AND ?
+                        GROUP BY date(order_date), order_history.id"""
+        cursor = self.dbase.cursor()
+        uid = self.customer.return_uid()
+        cursor.execute(sql, [uid, b, a])
+        self.dbase.commit()
+        array = cursor.fetchall()
+        for arr in array:
+            print(arr)
+        columns = (1, 2, 3)
+        tree = ttk.Treeview(self.cabin, show='headings', column=columns, height=7)
+        tree.heading(1, text='Дата')
+        tree.column(1, width=70, stretch=False)
+        tree.heading(2, text='кол-во заказов')
+        tree.column(2, minwidth=100, stretch=False)
+        tree.heading(3, text='Стимость')
+        tree.column(3, width=70, stretch=False)
+        ysb = ttk.Scrollbar(self.cabin, orient=tk.VERTICAL, command=tree.yview)
+        tree.configure(yscroll=ysb.set)
+        for order in array:
+            tree.insert("", tk.END, values=order)
+
+        tree.grid(row=3, column=0, sticky=tk.W + tk.E, columnspan=4)
+        ysb.grid(row=3, column=4, sticky=tk.N + tk.S)
 
     def draw_year_charts(self):
         print('YEAR')
+        a = datetime.datetime.today()  # .strftime("%Y-%m-%d")
+        b = datetime.datetime(a.year - 1, a.month, a.day)
+        print(a.strftime("%Y-%m-%d"))
+        print(b.strftime("%Y-%m-%d"))
+
+        # sql = """SELECT item_name, item_amount, item_cost, date(order_date) # по каждому товару
+        #         FROM orders
+        #         INNER JOIN
+        #         order_history ON order_id = order_history.id
+        #         WHERE customer_id = ? and date(order_date) BETWEEN ? AND ?"""
+
+        sql = """SELECT date(order_date), COUNT(order_history.id), SUM(item_amount * item_cost)
+                        FROM orders
+                        INNER JOIN
+                        order_history ON order_id =order_history.id
+                        WHERE customer_id = ? and date(order_date) BETWEEN ? AND ?
+                        GROUP BY date(order_date), order_history.id"""
+        cursor = self.dbase.cursor()
+        uid = self.customer.return_uid()
+        cursor.execute(sql, [uid, b, a])
+        self.dbase.commit()
+        array = cursor.fetchall()
+        for arr in array:
+            print(arr)
+        columns = (1, 2, 3)
+        tree = ttk.Treeview(self.cabin, show='headings', column=columns, height=7)
+        tree.heading(1, text='Дата')
+        tree.column(1, width=70, stretch=False)
+        tree.heading(2, text='кол-во заказов')
+        tree.column(2, minwidth=100, stretch=False)
+        tree.heading(3, text='Стимость')
+        tree.column(3, width=70, stretch=False)
+        ysb = ttk.Scrollbar(self.cabin, orient=tk.VERTICAL, command=tree.yview)
+        tree.configure(yscroll=ysb.set)
+        for order in array:
+            tree.insert("", tk.END, values=order)
+
+        tree.grid(row=3, column=0, sticky=tk.W + tk.E, columnspan=4)
+        ysb.grid(row=3, column=4, sticky=tk.N + tk.S)
+
+    def interval_trigger(self):
+        tk.Label(self.cabin, text="ГГГГ-ММ-ДД  ОТ:", font=('Arial', 12)).grid(row=3, column=0)
+        self.from_entry = tk.Entry(self.cabin, font=('Arial', 12), width=15)
+        self.from_entry.grid(row=3, column=1)
+        tk.Label(self.cabin, text='  ДО:', font=('Arial', 12)).grid(row=3, column=2)
+        self.to_entry = tk.Entry(self.cabin, font=('Arial', 12), width=15)
+        self.to_entry.grid(row=3, column=3)
+        tk.Button(self.cabin, text='Рассчитать', font=('Arial', 14), command=self.draw_interval_charts).grid(row=3, column=4)
 
     def draw_interval_charts(self):
-        pass
+        a = self.from_entry.get()  # .strftime("%Y-%m-%d")
+        b = self.to_entry.get()
+        if a != '' and b != '':
+            if a < b:
+                sql = """SELECT date(order_date), COUNT(order_history.id), SUM(item_amount * item_cost)
+                                        FROM orders
+                                        INNER JOIN
+                                        order_history ON order_id =order_history.id
+                                        WHERE customer_id = ? and date(order_date) BETWEEN ? AND ?
+                                        GROUP BY date(order_date), order_history.id"""
+                cursor = self.dbase.cursor()
+                uid = self.customer.return_uid()
+                cursor.execute(sql, [uid, a, b])
+                self.dbase.commit()
+                array = cursor.fetchall()
+                for arr in array:
+                    print(arr)
+                columns = (1, 2, 3)
+                tree = ttk.Treeview(self.cabin, show='headings', column=columns, height=7)
+                tree.heading(1, text='Дата')
+                tree.column(1, width=70, stretch=False)
+                tree.heading(2, text='кол-во заказов')
+                tree.column(2, minwidth=100, stretch=False)
+                tree.heading(3, text='Стимость')
+                tree.column(3, width=70, stretch=False)
+                ysb = ttk.Scrollbar(self.cabin, orient=tk.VERTICAL, command=tree.yview)
+                tree.configure(yscroll=ysb.set)
+                for order in array:
+                    tree.insert("", tk.END, values=order)
+
+                tree.grid(row=4, column=0, sticky=tk.W + tk.E, columnspan=4)
+                ysb.grid(row=4, column=4, sticky=tk.N + tk.S)
+            else:
+                messagebox.showerror(title='Error', message='Data in left must be less')
+        else:
+            messagebox.showerror(title='Error', message='Data fields are empty. Example: 2022-01-23')
+
+        # sql = """SELECT item_name, item_amount, item_cost, date(order_date) # по каждому товару
+        #         FROM orders
+        #         INNER JOIN
+        #         order_history ON order_id = order_history.id
+        #         WHERE customer_id = ? and date(order_date) BETWEEN ? AND ?"""
+
+
 
 
     def user_data(self, command):
