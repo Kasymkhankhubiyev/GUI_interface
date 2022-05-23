@@ -148,8 +148,13 @@ def basket_with_calories():
 
     tk.Label(basket_table, text=('Всего каллорий:   ' + str(sum_cal)), font=('Aria', 12)).grid(row=3, column=0, padx=10, pady=5)
     tk.Label(basket_table, text=('Стоимость заказа: ' + str(final_cost)), font=('Aria', 12)).grid(row=4, column=0, padx=10, pady=5)
+
+    tk.Button(basket_table, text='Подтвердить заказ', font=('Arial', 12), command=insetr_order).grid(row=5, column=1, padx=10, pady=5)
     win.update()
 
+def insetr_order():
+    for i in basket_list:
+        print(i)
 
 def fill_basket():  # basket_list, basket_table):
     lists = basket_table.grid_slaves()

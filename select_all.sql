@@ -139,13 +139,32 @@ cursor.execute("""SELECT item_name, ROUNd(SUM(cals), 2), ROUND(SUM(prots), 2), R
 CREATE TABLE order_history(
 id INTEGER PRIMARY KEY,
 customer_id INTEGER NOT NULL,
-item_name TEXT NOT NULL,
-item_amount INTEGER NOT NULL,
 order_date TEXT NOT NULL,
 order_status TEXT NOT NULL,
-order_cost INTEGER NOT NULL,
 FOREIGN KEY (customer_id) REFERENCES customers(user_id)
 )
+
+CREATE TABLE orders(
+id INTEGER PRIMARY KEY,
+order_id INTEGER NOT NULL,
+item_name TEXT NOT NULL,
+item_amount INTEGER NOT NULL,
+item_type INTEGER NOT NULL,
+item_cost INTEGER NOT NULL,
+FOREIGN KEY(order_id) REFERENCES order_history(id))
+
+INSERT INTO orders(order_id, item_name, item_amount, item_type, item_cost)
+VALUES
+    (1,'Американо 250', 1, 1, 140),
+    (2,'Американо 250', 2, 1, 280),
+    (3,'Американо 250', 1, 1, 140),
+    (4,'Американо 250', 1, 1, 140),
+    (5,'Американо 250', 1, 1, 140),
+    (6,'Американо 250', 1, 1, 140),
+    (7,'Американо 250', 1, 1, 140),
+    (8,'Американо 250', 1, 1, 140),
+    (6,'Латте 400', 1, 1, 170),
+    (1,'Раф халва 350', 1, 2, 220)
 
 INSERT INTO order_history(customer_id, item_name, item_amount, order_date, order_status, order_cost)
 VALUES

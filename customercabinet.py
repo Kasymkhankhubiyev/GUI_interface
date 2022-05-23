@@ -150,9 +150,17 @@ class CustomerCabinet:
         tk.Label(self.cabin, text='Подребнее').grid(row=row+1,column=0,padx=10, pady=5)
 
     def get_orders_history(self, uid):
-        sql = """SELECT id, order_date, order_status, SUM(order_cost) FROM order_history WHERE customer_id = ? GROUP BY id"""
+        sql = """SELECT order_history.id, order_history.order_date, order_history.order_status, fee.cost 
+                FROM 
+                    order_history 
+                    INNER JOIN
+                    (SELECT id, SUM(item_cost) AS cost FROM orders 
+                    WHERE order_id in (SELECT id FROM order_history WHERE customer_id = ?)
+                    GROUP BY id)fee
+                    ON order_history.id = fee.id
+                WHERE customer_id = ? GROUP BY order_history.id"""
         cursor = self.dbase.cursor()
-        cursor.execute(sql, [uid])
+        cursor.execute(sql, [uid, uid])
         self.dbase.commit()
         array = cursor.fetchall()
         result = []
@@ -167,7 +175,7 @@ class CustomerCabinet:
         self.order_list.clear()
         self.order_buttons.clear()
         tk.Label(self.cabin, text="Выберите операцию:", font=('Arial', 14)).grid(row=0, column=0, pady=5, padx=10)
-        values=['главная страница', 'история заказов', 'аналитика', 'личные данные']
+        values = ['главная страница', 'история заказов', 'аналитика', 'личные данные']
         self.command_combobox=ttk.Combobox(self.cabin, values=values, font=('Arial', 14), state='readonly', width=25)
         self.command_combobox.grid(row=1, column=0, padx=10, pady=5, columnspan=4)
         self.command_combobox.set(command)
@@ -186,10 +194,18 @@ class CustomerCabinet:
         self.interval_button.grid(row=row, column=3, padx=5, pady=5, sticky=tk.W)
 
     def draw_week_charts(self):
-        # canvas = tk.Canvas(self.cabin, width=500, height=200, bg='white')
-        # canvas.grid(row=3, column=0, columnspan=4, sticky=tk.W)
-        # canvas.create_rectangle(10,170, 40, 200, fill='yellow')
-        # canvas.create_text(10, 180, text='1')
+        print('WEEK')
+        sql = """SELECT item_name, date(order_date)
+                FROM order_history
+                WHERE order_date BETWEEN date('2022-05-13 12:40:00') AND (SELECT date('2022-05-13', 'start of day', '-1 day'))"""
+        # sql = """SELECT * FROM order_history"""
+        cursor = self.dbase.cursor()
+        uid = self.customer.return_uid()
+        cursor.execute(sql)
+        self.dbase.commit()
+        array = cursor.fetchall()
+        for arr in array:
+            print(arr)
 
     def draw_month_charts(self):
         print('MONTH')
