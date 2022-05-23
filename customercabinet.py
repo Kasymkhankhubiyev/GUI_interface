@@ -4,12 +4,15 @@ from tkinter.ttk import Combobox
 from tkinter import ttk
 import sqlite3 as db
 from tkinter import messagebox
+import customer
 
 
 class CustomerCabinet:
     def __init__(self, win, ttk_notebook, dbase, customer):
 
         self.customer = customer
+        self.order_list = []
+        self.order_buttons = []
 
         self.window = win
         self.notebook = ttk_notebook
@@ -32,17 +35,22 @@ class CustomerCabinet:
         login = self.login.get()
         pwd = self.password.get()
         log_pwd = self.get_login_pwd(login)
-        if log_pwd == 0:
-            messagebox.showerror(title="Ups, error...", message='No such login')
-        else:
-            if log_pwd == pwd:
-                pass  # run the cabinet
-            else:
-                messagebox.showerror(title='Ups, error...', message='Incorrect pwd')
+        for slave in self.cabin.place_slaves():
+            slave.destroy()
+        self.cabinet_window()
+        # if log_pwd == 0:
+        #     messagebox.showerror(title="Ups, error...", message='No such login')
+        # else:
+        #     if log_pwd == pwd:
+        #         uid = self.get_user_uid(login)
+        #         self.customer = customer.Customer(login, uid)  # инициализируем пользователя
+        #         self.cabinet_window()
+        #     else:
+        #         messagebox.showerror(title='Ups, error...', message='Incorrect pwd')
 
     def get_login_pwd(self, login):
-        sql = """SELECT user_pwd FROM customers WHERE user_login = ?"""
         cursor = self.dbase.cursor()
+        sql = """SELECT user_pwd FROM customers WHERE user_login = ?"""
         cursor.execute(sql, [login])
         self.dbase.commit()
         result = cursor.fetchall()
@@ -50,7 +58,58 @@ class CustomerCabinet:
             print('Nothing found....')
             return 0
         else:
-            return result[0]
+            return result[0][0]
+
+    def cabinet_window(self, default='Не выбрано'):
+        for slave in self.cabin.grid_slaves():
+            slave.destroy()
+        row = 0
+        self.order_list.clear()
+        self.order_buttons.clear()
+        tk.Label(self.cabin, text="Выберите операцию:", font=('Arial', 14)).grid(row=0, column=1, pady=5, padx=10)
+        values=['главная страница', 'история заказов', 'аналитика', 'личные данные']
+        self.command_combobox=ttk.Combobox(self.cabin, values=values, font=('Arial', 14), state='readonly', width=25)
+        self.command_combobox.grid(row=1, column=2, padx=10, pady=5)
+        self.command_combobox.set(default)
+        self.command_combobox.bind("<<ComboboxSelected>>", self.choose_command)
+        tk.Label(self.cabin, text='Текущие заказы:')
+        row += 2
+        self.order_list = self.get_current_orders(self.customer.return_uid())
+        for order in self.order_list:
+
+
+    def get_current_orders(self, uid):
+        sql = """SELECT id, order_date, order_status FROM history WHERE user_id = ?"""
+        cursor = self.dbase.cursor()
+        cursor.execute(sql, [uid])
+        self.dbase.commit()
+        lists = []
+        array = cursor.fetchall()
+        for arr in array:
+            print(arr[0])
+            lists.append(arr[0])
+        return lists
+
+    def choose_command(self, event):
+        command = self.command_combobox.get()
+        if command == 'главная страница':
+            self.cabinet_window(default=command)
+        elif command == 'история заказов':
+            self.history_window(command)
+        elif command == 'аналитика':
+            self.analytic_window(command)
+        elif command == 'личные данные':
+            self.user_data(command)
+
+    def history_window(self, command_name):
+        pass
+
+    def analytic_window(self, command):
+        pass
+
+    def user_data(self, command):
+        pass
+
 
     def draw_registration_window(self):
         tk.Label(self.cabin, text='ЛОГИН', font=('Arial', 12)).place(x=130, y=100)
@@ -101,6 +160,14 @@ class CustomerCabinet:
             cursor.close()
             return True
 
+    def get_user_uid(self, login):
+        sql = """SELECT user_id FROM customers WHERE user_login = ?"""
+        cursor = self.dbase.cursor()
+        cursor.execute(sql, [login])
+        result = cursor.fetchall()
+        cursor.close()
+        return result[0][0]
+
     def add_customer(self):
         if self.reg_login.get() != '':
             if self.reg_pwd.get() != '':
@@ -110,7 +177,9 @@ class CustomerCabinet:
                             if self.email_check(self.reg_email.get()):
                                 if self.get_login_pwd(self.reg_login.get()) == 0:
                                     if self.insert_customer(self.reg_login.get(), self.reg_pwd.get(), self.reg_email.get()):
-                                        pass
+                                        uid = self.get_user_uid(self.reg_login.get())
+                                        self.customer = customer.Customer(self.reg_login.get(), uid)
+                                        self.cabinet_window()
                                     else:
                                         messagebox.showerror(title='ERROR', message='Упс... Ошибочка вышла. Пожалуйста, повторите еще раз')
                                 else:
