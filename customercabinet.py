@@ -161,7 +161,45 @@ class CustomerCabinet:
         return result
 
     def analytic_window(self, command):
+        for slave in self.cabin.grid_slaves():
+            slave.destroy()
+        row = 0
+        self.order_list.clear()
+        self.order_buttons.clear()
+        tk.Label(self.cabin, text="Выберите операцию:", font=('Arial', 14)).grid(row=0, column=0, pady=5, padx=10)
+        values=['главная страница', 'история заказов', 'аналитика', 'личные данные']
+        self.command_combobox=ttk.Combobox(self.cabin, values=values, font=('Arial', 14), state='readonly', width=25)
+        self.command_combobox.grid(row=1, column=0, padx=10, pady=5, columnspan=4)
+        self.command_combobox.set(command)
+        self.command_combobox.bind("<<ComboboxSelected>>", self.choose_command)
+        tk.Label(self.cabin, text='История заказов:')
+        row += 2
+        self.r_var = tk.IntVar()
+        self.r_var.set(0)
+        self.week_button = tk.Radiobutton(self.cabin, variable=self.r_var, value=0, text='Неделя', command=self.draw_week_charts)
+        self.week_button.grid(row=row, column=0, pady=5, sticky=tk.E)
+        self.month_button = tk.Radiobutton(self.cabin, text='Месяц', variable=self.r_var, value=1, command=self.draw_month_charts)
+        self.month_button.grid(row=row, column=1, padx=5, pady=5, sticky=tk.W)
+        self.year_button = tk.Radiobutton(self.cabin, text='Год', variable=self.r_var, value=2, command=self.draw_year_charts)
+        self.year_button.grid(row=row, column=2, padx=5, pady=5, sticky=tk.W)
+        self.interval_button = tk.Radiobutton(self.cabin, text='Интервал', variable=self.r_var, value=3, command=self.draw_interval_charts)
+        self.interval_button.grid(row=row, column=3, padx=5, pady=5, sticky=tk.W)
+
+    def draw_week_charts(self):
+        # canvas = tk.Canvas(self.cabin, width=500, height=200, bg='white')
+        # canvas.grid(row=3, column=0, columnspan=4, sticky=tk.W)
+        # canvas.create_rectangle(10,170, 40, 200, fill='yellow')
+        # canvas.create_text(10, 180, text='1')
+
+    def draw_month_charts(self):
+        print('MONTH')
+
+    def draw_year_charts(self):
+        print('YEAR')
+
+    def draw_interval_charts(self):
         pass
+
 
     def user_data(self, command):
         pass
