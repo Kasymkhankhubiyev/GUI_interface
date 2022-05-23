@@ -150,7 +150,8 @@ CREATE TABLE customers(
 id INTEGER PRIMARY KEY,
 user_id TEXT NOT NULL UNIQUE,
 user_login TEXT NOT NULL UNIQUE,
-user_pwd TEXT NOT NULL
+user_pwd TEXT NOT NULL,
+user_email TEXT NOT NULL UNIQUE --нужен, чтобы мочь восстанавливать аккаунт
 )
 
 CREATE TABLE item_types(

@@ -62,7 +62,10 @@ class CustomerCabinet:
         tk.Label(self.cabin, text='ПАРОЛЬ', font=('Arial', 12)).place(x=130, y=180)
         self.reg_rep_pwd = tk.Entry(self.cabin, font=('Arial', 14), width=25, show='*')
         self.reg_rep_pwd.place(x=250, y=180)
-        tk.Button(self.cabin, text='Подтвердить', font=('Arial', 14), command=self.add_customer).place(x=190, y=220)
+        tk.Label(self.cabin, text='EMAIL', font=('Arial', 12)).place(x=130, y=220)
+        self.reg_email = tk.Entry(self.cabin, font=('Arial', 14), width=25)
+        self.reg_email.place(x=250, y=220)
+        tk.Button(self.cabin, text='Подтвердить', font=('Arial', 14), command=self.add_customer).place(x=190, y=260)
 
     def create_account(self):
         slaves = self.cabin.place_slaves()
@@ -70,13 +73,67 @@ class CustomerCabinet:
             slave.destroy()
         self.draw_registration_window()
 
+    def email_check(self, email):
+        sql = """SELECT user_email FROM customers WHERE user_login = ?"""
+        cursor = self.dbase.cursor()
+        cursor.execute(sql, [email])
+        self.dbase.commit()
+        exists = cursor.fetchall()
+        cursor.close()
+        if len(exists) != 0:
+            return True
+        else:
+            return False
+
+    def insert_customer(self, login, pwd, email):
+        try:
+            uid = str(round(random.random() * 255)) + '.' + str(round(random.random() * 255)) + '.' + \
+                     str(round(random.random() * 255)) + '.' + str(round(random.random() * 255))
+            cursor = self.dbase.cursor()
+            sql = """INSERT INTO customers(user_id, user_login, user_pwd, user_email)
+                    VALUES (?, ?, ?, ?)"""
+            cursor.execute(sql, [uid, login.lower(), pwd, email])  # email не зависит от регистра
+            self.dbase.commit()
+        except self.dbase.Error as error:
+            messagebox.showerror(title='Error', message='Data Base error occurred. Try again, please.')
+            return False
+        finally:
+            cursor.close()
+            return True
 
     def add_customer(self):
         if self.reg_login.get() != '':
-            pass
+            if self.reg_pwd.get() != '':
+                if self.reg_rep_pwd.get() != '':
+                    if self.reg_pwd.get() == self.reg_rep_pwd.get():
+                        if self.reg_email.get() != '':
+                            if self.email_check(self.reg_email.get()):
+                                if self.get_login_pwd(self.reg_login.get()) == 0:
+                                    if self.insert_customer(self.reg_login.get(), self.reg_pwd.get(), self.reg_email.get()):
+                                        pass
+                                    else:
+                                        messagebox.showerror(title='ERROR', message='Упс... Ошибочка вышла. Пожалуйста, повторите еще раз')
+                                else:
+                                    messagebox.showerror(title='Error', message=f'Логин "{self.reg_login.get()}" занят'+'\n'+'Придумайте, пожалуйста, другой логин.')
+                                    self.reg_login.delete(0, tk.END)
+                                    self.reg_pwd.delete(0, tk.END)
+                                    self.reg_rep_pwd.delete(0, tk.END)
+                            else:
+                                messagebox.showerror(title='Error', message=f'Этот email: {self.reg_email.get()} уже используется!')
+                        else:
+                            messagebox.showerror(title='Error', message='Введите почту')
+                    else:
+                        messagebox.showerror(title='Error', message='Пароли не совпадают!')
+                        self.reg_pwd.delete(0, tk.END)
+                        self.reg_rep_pwd.delete(0, tk.END)
+                else:
+                    messagebox.showerror(title='Error', message='Повторите пароль!')
+                    self.reg_pwd.delete(0, tk.END)
+            else:
+                messagebox.showerror(title='Error', message='Придумайте пароль!')
         else:
-            text = self.reg_login.get()
-            self.reg_login = tk.Entry(self.cabin, font=('Arial', 14), background='RED', width=25)
-            self.reg_login.insert(0, text)
-            self.reg_login.place(x=250, y=100)
+            # text = self.reg_login.get()
+            # self.reg_login = tk.Entry(self.cabin, font=('Arial', 14), background='RED', width=25)
+            # self.reg_login.insert(0, text)
+            # self.reg_login.place(x=250, y=100)
             messagebox.showerror(title='Error', message='Поле "Логин" пустое.')

@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 import sqlite3 as db
+import random
 
 import button
 import mylabel
