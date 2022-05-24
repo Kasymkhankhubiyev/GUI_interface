@@ -155,6 +155,24 @@ def basket_with_calories():
 def insetr_order():
     for i in basket_list:
         print(i)
+    customer= customer_table.return_customer()
+    if customer.return_uid() is not None:
+        sql = """INSERT INTO order_history(customer_id, order_date, order_status)
+        VALUES (?, datetime('now'), 'ГОТОВИТСЯ')"""
+        cursor.execute(sql, [customer.return_uid()])
+        sql = """SELECT id FROM order_history ORDER BY id DESC LIMIT 1"""
+        cursor.execute(sql)
+        db_connection.commit()
+        number = cursor.fetchall()
+        print(number[0][0])
+        for item in basket_list:
+            sql = "SELECT type_id FROM items WHERE item_name = ?"
+            cursor.execute(sql, [item[0]])
+            db_connection.commit()
+            type_id = cursor.fetchall()
+    else:
+        messagebox.showerror(title='Error', message='Для заказа нужно войти в систему!')
+
 
 def fill_basket():  # basket_list, basket_table):
     lists = basket_table.grid_slaves()

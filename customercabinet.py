@@ -32,6 +32,9 @@ class CustomerCabinet:
         tk.Button(self.cabin, command=self.enter_account, text='Войти ⎆', font=('Arial', 14)).place(x=300, y=250)
         tk.Button(self.cabin, command=self.create_account, text='Регистрация', font=('Arial', 14)).place(x=400, y=250)
 
+    def return_customer(self):
+        return self.customer
+
     def enter_account(self):
         login = self.login.get()
         pwd = self.password.get()
@@ -63,6 +66,9 @@ class CustomerCabinet:
         else:
             return result[0][0]
 
+    def renew_window(self):
+        self.cabinet_window(self.command_combobox.get())
+
     def cabinet_window(self, default='Не выбрано'):
         for slave in self.cabin.grid_slaves():
             slave.destroy()
@@ -75,8 +81,9 @@ class CustomerCabinet:
         self.command_combobox.grid(row=1, column=0, padx=10, pady=5)
         self.command_combobox.set(default)
         self.command_combobox.bind("<<ComboboxSelected>>", self.choose_command)
-        tk.Label(self.cabin, text='Текущие заказы:')
-        row += 2
+        tk.Label(self.cabin, text='Текущие заказы:', font=('Arial', 14)).grid(row=2, column=0)
+        tk.Button(self.cabin, text='🗘', font=('Arial', 14), command=self.renew_window).grid(row=2, column=1)
+        row += 3
         self.order_list = self.get_current_orders(self.customer.return_uid())
         columns = (1, 2, 3)
         tree = ttk.Treeview(self.cabin, show='headings', column=columns, height=7)
@@ -94,12 +101,13 @@ class CustomerCabinet:
         for order in self.order_list:
             values.append(order[0])
 
-        tk.Label(self.cabin, text='Отменить заказ №', font=('Arial', 14)).grid(row=3, column=0)
+        tk.Label(self.cabin, text='Отменить заказ №', font=('Arial', 14)).grid(row=row+1, column=0)
         self.choose_order_to_delete_combobox = ttk.Combobox(self.cabin, values=values, font=('Arial', 12), state="readonly")
-        self.choose_order_to_delete_combobox.grid(row=4, column=0)
+        self.choose_order_to_delete_combobox.grid(row=row+2, column=0)
         self.choose_order_to_delete_combobox.bind("<<ComboboxSelected>>", self.delete_order)
 
-    def delete_order(self):
+    def delete_order(self, event):
+        # hеализация
         sql = """DELETE FROM order_history WHERE customer_id = ? AND id = ? """
         cursor = self.dbase.cursor()
         cursor.execute(sql, [self.customer.return_uid(), self.choose_order_to_delete_combobox.get()])
